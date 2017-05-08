@@ -52,26 +52,26 @@ public class RaycastingTest : MonoBehaviour
             ShowLaser(hit);
         }
 
-        if (Controller.GetHairTriggerDown())
-        {
-            if (collidingObject)
-            {
-                GrabObject();
-            }
-        }
+        //if (Controller.GetHairTriggerDown())
+        //{
+        //    if (collidingObject)
+        //    {
+        //        GrabObject();
+        //    }
+        //}
 
-        if (Controller.GetHairTriggerUp())
-        {
-            if (objectInHand)
-            {
-                ReleaseObject();
-            }
-        }
+        //if (Controller.GetHairTriggerUp())
+        //{
+        //    if (objectInHand)
+        //    {
+        //        ReleaseObject();
+        //    }
+        //}
     }
 
     private void GrabObject()
     {
-        objectInHand =collidingObject;
+        objectInHand = collidingObject;
         collidingObject = null;
         var joint = AddFixedJoint();
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
@@ -98,14 +98,22 @@ public class RaycastingTest : MonoBehaviour
       //  collidingObject = hit.transform.gameObject;
     }
 
-    //public void OnTriggerEnter(Collider other)
-    //{
-    //    SetCollidingObject(other);
-    //}
+    public void OnTriggerEnter(Collider other)
+    {
+        SetCollidingObject(other);
+        if (collidingObject)
+        {
+            GrabObject();
+        }
+    }
 
     public void OnTriggerStay(Collider other)
     {
         SetCollidingObject(other);
+        if (collidingObject)
+        {
+            GrabObject();
+        }
     }
 
 
@@ -115,8 +123,11 @@ public class RaycastingTest : MonoBehaviour
         {
             return;
         }
-
-        collidingObject = null;
+        else
+        {
+            ReleaseObject();
+            collidingObject = null;
+        }
     }
 
     
