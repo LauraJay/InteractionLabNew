@@ -15,8 +15,13 @@ public class SwitchRoom : MonoBehaviour {
     private bool[] gripPressedDown = { false, false };
     private Valve.VR.EVRButtonId grip = Valve.VR.EVRButtonId.k_EButton_Grip;
 
-    private AssetBundle myLoadedAssetBundle;
-    private string[] scenePaths;
+    private Scene currentScene;
+    private int currentID;
+    private bool alreadyChanged;
+
+    //CONS - Buildsettings
+    private int learning = 0;
+    private int supermarket = 1;
 
     private void OnDeviceConnected(int deviceid, bool isConnected)
     {
@@ -53,20 +58,19 @@ public class SwitchRoom : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {/*
-        string dir = System.Environment.CurrentDirectory;
-
-        myLoadedAssetBundle = AssetBundle.LoadFromFile(dir + "\\Assets\\Scenes");
-        scenePaths = myLoadedAssetBundle.GetAllScenePaths();*/
+    void Start () {
+        alreadyChanged = false;
+       
 
     }
 
     // Update is called once per frame
     void Update()
     {
+
         if (viveControllerConnected >= 1)
         {
-            
+            //Debug.Log("connected");
             //GET CONTROLLER DATA
             SteamVR_Controller.Device device;
 
@@ -82,32 +86,93 @@ public class SwitchRoom : MonoBehaviour {
             }
 
         }
+
+        //Debug.Log("grip pressed? " + gripPressedDown[0]);
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        currentScene = SceneManager.GetActiveScene();
+        currentID = currentScene.buildIndex;
+        Debug.Log("ID: " + currentID);
+        /*
+        if (currentID == learning)
+        {
+
+            if (alreadyChanged)
+            {
+                Debug.Log("changed");
+                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(supermarket));
+            }
+            else
+            {
+                SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
+
+                alreadyChanged = true;
+            }
+
+            Debug.Log("load supermarkt");
+        }
+        if (currentID == supermarket)
+        {
+            if (alreadyChanged)
+            {
+                Debug.Log("changed");
+                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(learning));
+            }
+            else
+            {
+                SceneManager.LoadScene(learning, LoadSceneMode.Single);
+
+                alreadyChanged = true;
+            }
+            Debug.Log("load learning");
+        }*/
+    }
+
     void OnTriggerStay(Collider other)
     {
         Debug.Log("stay");
-        Scene currentScene = SceneManager.GetActiveScene();
-        int currentID = currentScene.buildIndex;
-        int learning = 0;
-        int supermarket = 1;
 
-        Debug.Log("ID: " + currentID);
-       //SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
-       /*if (gripPressedDown[0] || gripPressedDown[1])
-        {
-            Debug.Log("grip");
-
-        }*/
-        if ((gripPressedDown[0] || gripPressedDown[1]) && currentID==learning)
+        if ((gripPressedDown[0] || gripPressedDown[1]) && currentID == learning)
          {
-            SceneManager.LoadScene(supermarket);
-            Debug.Log("supermarkt");
+
+            if (alreadyChanged)
+            {
+                Debug.Log("changed");
+                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(supermarket));
+            }
+            else
+            {
+                SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
+               
+                alreadyChanged = true;
+            }
+            
+            Debug.Log("load supermarkt");
         }
         if ((gripPressedDown[0] || gripPressedDown[1]) && currentID == supermarket)
         {
-            SceneManager.LoadScene(learning);
+            if (alreadyChanged)
+            {
+                Debug.Log("changed");
+                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(learning));
+            }
+            else
+            {
+                SceneManager.LoadScene(learning, LoadSceneMode.Single);
+                
+                alreadyChanged = true;
+            }
+            Debug.Log("load learning");
         }
          // Application.LoadLevel(supermarket);
 
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        //currentID = -1;
+        Debug.Log("EXIT");
     }
 }

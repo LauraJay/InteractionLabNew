@@ -19,8 +19,8 @@ public class TargetTest : MonoBehaviour
     {
         targetArea = GameObject.Find("TargetArea");
         //targetArea.GetComponent("Mesh Collider");
-        collidingObject = GameObject.Find("smallCube");
-        //collidingObject = GameObject.Find("Apple/Sphere");
+        //collidingObject = GameObject.Find("smallCube");
+        collidingObject = GameObject.Find("Apple/Sphere");
         startPos = collidingObject.transform.position;
 
         objectTex = collidingObject.GetComponent<MeshRenderer>().material.GetTexture("_MainTex");
