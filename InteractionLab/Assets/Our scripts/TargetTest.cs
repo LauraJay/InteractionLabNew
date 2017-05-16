@@ -62,7 +62,7 @@ public class TargetTest : MonoBehaviour
    // }
 
 
-    public void OnTriggerExit(Collider other)
+    public void OnCollisionExit(Collision other)
     {
         Debug.Log("Exit");
         material.SetColor("_OutlineColor", new Color(1, 1, 1));
