@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class RaycastingTest : MonoBehaviour
 {
-
     private SteamVR_TrackedObject trackedObj;
     public GameObject laserPrefab;
     private GameObject laser;
@@ -13,9 +12,8 @@ public class RaycastingTest : MonoBehaviour
     private GameObject collidingObject;
     private GameObject objectInHand;
     private  RaycastHit hit;
-    //private GameObject cameraRig;
-	
-	
+
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -37,7 +35,6 @@ public class RaycastingTest : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //cameraRig = GameObject.Find ("[CameraRig]");
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
     }
@@ -45,103 +42,86 @@ public class RaycastingTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Shoot a ray from the controller.If it hits something, make it store the point where it hit and show the laser.
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100))
-        {
-            hitPoint = hit.point;
-            ShowLaser(hit);
-        }
-
-        //if (Controller.GetHairTriggerDown())
-        //{
-        //    if (collidingObject)
-        //    {
-        //        GrabObject();
-        //    }
-        //}
-
-        //if (Controller.GetHairTriggerUp())
-        //{
-        //    if (objectInHand)
-        //    {
-        //        ReleaseObject();
-        //    }
-        //}
+            if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100))
+            {
+                hitPoint = hit.point;
+                ShowLaser(hit);
+            }
     }
 
-    private void GrabObject()
-    {
-        objectInHand = collidingObject;
-        collidingObject = null;
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-    }
+    //private void GrabObject()
+    //{
+    //    objectInHand = collidingObject;
+    //    collidingObject = null;
+    //    var joint = AddFixedJoint();
+    //    joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+    //}
 
-    private FixedJoint AddFixedJoint()
-    {
-        FixedJoint fx = gameObject.AddComponent<FixedJoint>();
-        fx.breakForce = 20000;
-        fx.breakTorque = 20000;
-        return fx;
-    }
+    //private FixedJoint AddFixedJoint()
+    //{
+    //    FixedJoint fx = gameObject.AddComponent<FixedJoint>();
+    //    fx.breakForce = 20000;
+    //    fx.breakTorque = 20000;
+    //    return fx;
+    //}
 
-    private void SetCollidingObject(Collider col)
-    {
-        col = hit.collider;
-       // Debug.Log( hit.transform.gameObject.name );
+    //private void SetCollidingObject(Collider col)
+    //{
+    //    col = hit.collider;
+    //   // Debug.Log( hit.transform.gameObject.name );
 
-        if (collidingObject || !col.GetComponent<Rigidbody>())
-        {
-            return;
-        }
-        collidingObject = col.gameObject;
-      //  collidingObject = hit.transform.gameObject;
-    }
+    //    if (collidingObject || !col.GetComponent<Rigidbody>())
+    //    {
+    //        return;
+    //    }
+    //    collidingObject = col.gameObject;
+    //  //  collidingObject = hit.transform.gameObject;
+    //}
 
-    public void OnTriggerEnter(Collider other)
-    {
-        SetCollidingObject(other);
-        if (collidingObject)
-        {
-            GrabObject();
-        }
-    }
+    //public void OnTriggerEnter(Collider other)
+    //{
+    //    SetCollidingObject(other);
+    //    if (collidingObject)
+    //    {
+    //        GrabObject();
+    //    }
+    //}
 
-    public void OnTriggerStay(Collider other)
-    {
-        SetCollidingObject(other);
-        if (collidingObject)
-        {
-            GrabObject();
-        }
-    }
+    //public void OnTriggerStay(Collider other)
+    //{
+    //    SetCollidingObject(other);
+    //    if (collidingObject)
+    //    {
+    //        GrabObject();
+    //    }
+    //}
 
 
-    public void OnTriggerExit(Collider other)
-    {
-        if (!collidingObject)
-        {
-            return;
-        }
-        else
-        {
-            ReleaseObject();
-            collidingObject = null;
-        }
-    }
+    //public void OnTriggerExit(Collider other)
+    //{
+    //    if (!collidingObject)
+    //    {
+    //        return;
+    //    }
+    //    else
+    //    {
+    //        ReleaseObject();
+    //        collidingObject = null;
+    //    }
+    //}
 
     
 
-    private void ReleaseObject()
-    {
+    //private void ReleaseObject()
+    //{
 
-        if (GetComponent<FixedJoint>())
-        {
-            GetComponent<FixedJoint>().connectedBody = null;
-            Destroy(GetComponent<FixedJoint>());
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
-            objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
-        }
-        objectInHand = null;
-    }
+    //    if (GetComponent<FixedJoint>())
+    //    {
+    //        GetComponent<FixedJoint>().connectedBody = null;
+    //        Destroy(GetComponent<FixedJoint>());
+    //        objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+    //        objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+    //    }
+    //    objectInHand = null;
+    //}
 }

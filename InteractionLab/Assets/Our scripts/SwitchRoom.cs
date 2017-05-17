@@ -95,78 +95,22 @@ public class SwitchRoom : MonoBehaviour {
         currentScene = SceneManager.GetActiveScene();
         currentID = currentScene.buildIndex;
         Debug.Log("ID: " + currentID);
-        /*
+        
         if (currentID == learning)
         {
-
-            if (alreadyChanged)
-            {
-                Debug.Log("changed");
-                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(supermarket));
-            }
-            else
-            {
-                SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
-
-                alreadyChanged = true;
-            }
-
+            SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
             Debug.Log("load supermarkt");
         }
         if (currentID == supermarket)
         {
-            if (alreadyChanged)
-            {
-                Debug.Log("changed");
-                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(learning));
-            }
-            else
-            {
-                SceneManager.LoadScene(learning, LoadSceneMode.Single);
-
-                alreadyChanged = true;
-            }
+            SceneManager.LoadScene(learning, LoadSceneMode.Single);
             Debug.Log("load learning");
-        }*/
+        }
     }
 
     void OnTriggerStay(Collider other)
     {
         Debug.Log("stay");
-
-        if ((gripPressedDown[0] || gripPressedDown[1]) && currentID == learning)
-         {
-
-            if (alreadyChanged)
-            {
-                Debug.Log("changed");
-                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(supermarket));
-            }
-            else
-            {
-                SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
-               
-                alreadyChanged = true;
-            }
-            
-            Debug.Log("load supermarkt");
-        }
-        if ((gripPressedDown[0] || gripPressedDown[1]) && currentID == supermarket)
-        {
-            if (alreadyChanged)
-            {
-                Debug.Log("changed");
-                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(learning));
-            }
-            else
-            {
-                SceneManager.LoadScene(learning, LoadSceneMode.Single);
-                
-                alreadyChanged = true;
-            }
-            Debug.Log("load learning");
-        }
-         // Application.LoadLevel(supermarket);
 
     }
 
