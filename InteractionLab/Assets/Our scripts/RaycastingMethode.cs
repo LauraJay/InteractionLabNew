@@ -19,7 +19,7 @@ public class RaycastingMethode : MonoBehaviour
     public bool showCursor = true;
     public RaycastHit hitObject;
     private GameObject pressedController;
-    private GameObject pressedController1;
+    private GameObject temp;
     private bool triggerState;
 
     GameObject holder;
@@ -142,79 +142,73 @@ public class RaycastingMethode : MonoBehaviour
     void Update()
     {
         Ray raycast = new Ray(transform.position, transform.forward);
-
-        
+                
         bool rayHit = Physics.Raycast(raycast, out hitObject);
         //show pointed at Objects
-        if (rayHit)
+        // print object that was hit
+        if (rayHit && hitObject.transform.tag == "Moveable")
         {
-           Debug.Log(hitObject.transform.gameObject.name);
+            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
+            Color grabbingColor = new Color(0, 255, 0, 1);
+            cursorRenderer.material.color = grabbingColor;
+            Debug.Log(hitObject.transform.gameObject.name);
+        }
+        else {
+            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
+            Color grabbingColor = new Color(0,0, 0, 1);
+            cursorRenderer.material.color = grabbingColor;
+           // Debug.Log(hitObject.transform.gameObject.name);
         }
 
         float beamLength = GetBeamLength(rayHit, hitObject);
         SetPointerTransform(beamLength, thickness);
 
-        //if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && rayHit && hitObject.transform.tag == "Moveable")
-        //{
 
-        //    pressedController.transform.rotation = Controller.transform.rot;
-        //    pressedController.transform.position = Controller.transform.pos;
+        // get current position & rotation of controller (we need a gameobject for parenting later)
+       // pressedController.transform.rotation = Controller.transform.rot;
+        //pressedController.transform.position = Controller.transform.pos;
 
-        //    if (count == 0) {
-        //        hitObject.transform.SetParent(pressedController.transform);
-        //    }
-        //    count++;
-        //    Controller.TriggerHapticPulse(1000);
-        //   // GrabObject();
-        //}
-
-        pressedController.transform.rotation = Controller.transform.rot;
-        pressedController.transform.position = Controller.transform.pos;
 
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
         {
             GrabObject();
-            Controller.TriggerHapticPulse(1000);
         }
-        else if(Controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null && hitObject.transform.tag == "Moveable")
+
+        else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState)
         {
+            //&& hitObject.transform != null && hitObject.transform.tag == "Moveable"
             ReleaseObject();
-            
+            Debug.Log("should release object");
         }
+
 
         triggerState = Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger);
     }
 
-    
 
    void GrabObject()
     {
+        //Raycast später/seltener aufrufen
 
-        //Raycast später aufrufen
-        hitObject.transform.GetComponent<Rigidbody>().isKinematic = true;
-        hitObject.transform.SetParent(pressedController.transform);
+        temp = hitObject.transform.gameObject;
+        temp.transform.SetParent(cursor.transform);
+        temp.transform.GetComponent<Rigidbody>().isKinematic = true;
+
         //Rigidbody still legen
-        
-        //wenn er auf Objekt trifft rot färben
-        
-
-
     }
 
     void ReleaseObject()
     {
-        //hitObject.transform.SetParent(null);
+        temp.transform.SetParent(null);
         // hitObject.transform.parent = null;
-        Debug.Log("hsfklashdkfhkd");
-        Vector3 pos = hitObject.transform.position;
-        Quaternion rot = hitObject.transform.rotation;
-        hitObject.transform.SetParent(null);
-        //Destroy(pressedController);
-        //pressedController = new GameObject();
-        hitObject.transform.rotation = rot;
-        hitObject.transform.position = pos;
-       // hitObject.transform.GetComponent<Rigidbody>().isKinematic = false;
-       // hitObject.transform.GetComponent<Rigidbody>().useGravity = true;
+        Vector3 pos = temp.transform.position;
+        Quaternion rot = temp.transform.rotation;
+       // Destroy(pressedController);
+        pressedController = new GameObject();
+        temp.transform.rotation = rot;
+        temp.transform.position = pos;
+        temp.transform.GetComponent<Rigidbody>().isKinematic = false;
+        temp.transform.GetComponent<Rigidbody>().useGravity = true;
     }
 
 

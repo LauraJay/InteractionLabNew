@@ -8,6 +8,21 @@ public class ControllerGrabObject : MonoBehaviour {
     private GameObject collidingObject;
     private GameObject objectInHand;
 
+
+
+    // testing for snapping
+    public bool snapObject = true;
+    public Transform rightHandleSnap; 
+    protected Rigidbody controllerAttachPoint;
+    protected Joint ControllerAttachPoint;
+
+
+
+    private void setObjectSnapping( bool snap ) {
+
+        snapObject = snap;
+    }
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -25,6 +40,7 @@ public class ControllerGrabObject : MonoBehaviour {
             return;
         }
         collidingObject = col.gameObject;
+        Debug.Log("Set Object " + collidingObject.transform.name);
     }
 
     public void OnTriggerEnter(Collider other)
@@ -51,9 +67,15 @@ public class ControllerGrabObject : MonoBehaviour {
     private void GrabObject()
     {
         objectInHand = collidingObject;
-        collidingObject = null;
+      //  collidingObject = null;
+        //if (!snapObject) { 
         var joint = AddFixedJoint();
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+    //}
+        //else if(snapObject) {
+        //    SetSnappedObjectPosition(collidingObject);
+        //}
+        //snapping 
     }
 
     private FixedJoint AddFixedJoint()
@@ -94,4 +116,19 @@ public class ControllerGrabObject : MonoBehaviour {
             }
         }
     }
+
+    //protected virtual void SetSnappedObjectPosition(GameObject obj)
+    //{
+    //    Debug.Log("Current Object " + obj.transform.name);
+
+    //    if (obj.transform == null)
+    //    {
+    //        obj.transform.position = controllerAttachPoint.transform.position;
+    //    }
+    //    else
+    //    {
+    //        obj.transform.rotation = controllerAttachPoint.transform.rotation * Quaternion.Euler(obj.transform.localEulerAngles);
+    //        obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
+    //    }
+    //}
 }
