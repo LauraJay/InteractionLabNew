@@ -1,111 +1,164 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VRTK;
 
 public class Menu : MonoBehaviour {
 
-    public ControllerInfomations conInf = new ControllerInfomations();
+    private enum GrabMethods  { NEAR_SIMPLE, NEAR_STICK, NEAR_DIST, FAR_CONTROLLER, FAR_HMD, FAR_GOGO , NONE};
+	private RadialMenu menu1;
+	private RadialMenu menu2;
+   	private GrabMethods choosenInteraction = GrabMethods.NONE; //(nothing is picked)
 
-    private List<t_Menue> menues;
-    public int currentMenueHandle = -1;
-    private int currentMenueId = 1;
-    public bool menu = false;
-    private GameObject emptyGameObj;
+    public bool teaching;
+	public bool snap;
+    public bool menuVisible;
+    public Sprite ONTeachSprite;
+    public Sprite OFFTeachSprite;
+    public Sprite ONSnappingSprite;
+    public Sprite OFFSnappingSprite;
+    private VRTK_ControllerEvents controllerTracked;
+    private ControllerGrabObject scriptNearSimple;
+
+    
 
     // Use this for initialization
-    void Start () {
-        emptyGameObj = new GameObject();
-        createMenu();
-       
-    }
-	
-	// Update is called once per frame
-	void Update () {
-        if(conInf.viveControllerConnected >= 1)
-        {
-            calculateMenu();
-        }
-       
-    }
-
-    //CREATE MENU
-    private void createMenu()
+    void Start()
     {
-        //FILE MENU - START
-        menues = new List<t_Menue>(new t_Menue[10]);
-        menues[t_Menue.startMenu] = new t_Menue("start menu:", emptyGameObj);
+        menu1 = GameObject.Find("Panel1").GetComponent<RadialMenu>();
+        menu2 = GameObject.Find("Panel2").GetComponent<RadialMenu>();
+        menu1.generateOnAwake = true;
+        menu2.generateOnAwake = false;
+  
 
-        for (int i = 0; i < menues.Count; i++)
+        if (GetComponent<VRTK_ControllerEvents>() == null)
         {
-            string tempFileName = i.ToString();
+            Debug.Log("VRTK_ControllerEvents_ListenerExample is required to be attached to a Controller that has the VRTK_ControllerEvents script attached to it");
 
-            menues[t_Menue.startMenu].addButton("open " + tempFileName, delegate { Debug.Log("Button gedrückt: " + i); });
         }
+
+        GetComponent<VRTK_ControllerEvents>().ButtonTwoPressed += new ControllerInteractionEventHandler(DoButtonTwoPressed);
+        GetComponent<VRTK_ControllerEvents>().ButtonTwoReleased += new ControllerInteractionEventHandler(DoButtonTwoReleased);
+
+
+        teaching = true;
+        snap = true;
+        menuVisible = false;
+        menu1.gameObject.SetActive(menuVisible);
+        menu2.gameObject.SetActive(menuVisible);
     }
-            /*
-            {
-                switchToMenue(t_Menue.loadingScreen);
 
-                
-                menues[t_Menue.parameterMenu].addButton("changeColor", delegate { switchToMenue(t_Menue.colorPickerMenu); });
-                menues[t_Menue.parameterMenu].addButton("back to main menu", delegate { switchToMenue(t_Menue.mainMenu); });
-
-            });
-        }
-        menues[t_Menue.startMenu].addButton("back to main menu", delegate { switchToMenue(t_Menue.mainMenu); });
-
-        //MAIN MENU
-        menues[t_Menue.mainMenu] = new t_Menue("main menu:", uiObjects);
-        menues[t_Menue.mainMenu].addButton("open file", delegate { switchToMenue(t_Menue.startMenu); });
-        menues[t_Menue.mainMenu].addButton("change parameters", delegate { switchToMenue(t_Menue.parameterMenu); });
-        menues[t_Menue.mainMenu].addButton("change mesh", delegate { switchToMenue(t_Menue.meshMenu); activeMesh(); });
-        menues[t_Menue.mainMenu].addButton("show base", delegate { switchToMenue(t_Menue.baseMenu); });
-        menues[t_Menue.mainMenu].addButton("show family", delegate { switchToMenue(t_Menue.familyMenu); });
-        menues[t_Menue.mainMenu].addButton("show zone", delegate { switchToMenue(t_Menue.zoneMenu); });
-        menues[t_Menue.mainMenu].addButton("config", delegate { switchToMenue(t_Menue.streamlineMenu); });
-*/
-
-    //SHOWING MENU OR NOT
-    private void calculateMenu()
+    // Update is called once per frame
+    void Update()
     {
-        if (menu == true)
-        {
-            //menues[currentMenueId].gameObject.transform.parent = conInf.devices[currentMenueHandle].transform;
-            menues[currentMenueId].gameObject.transform.position = conInf.controllerPosition[currentMenueHandle];
-            menues[currentMenueId].gameObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            menues[currentMenueId].gameObject.transform.localPosition = new Vector3(0.0f, 0.0f, 0.2f);
-            menues[currentMenueId].gameObject.transform.localRotation = Quaternion.AngleAxis(75, transform.right);
-            menues[currentMenueId].gameObject.SetActive(true);
-            
-        }
+    }
 
+
+  
+
+    private void DoButtonTwoPressed(object sender, ControllerInteractionEventArgs e)
+    {
+        DebugLogger(e.controllerIndex, "BUTTON TWO", "pressed down", e);
+    }
+
+    private void DoButtonTwoReleased(object sender, ControllerInteractionEventArgs e)
+    {
+       toggleMenue();
+        DebugLogger(e.controllerIndex, "BUTTON TWO", "released", e);
+    }
+
+
+    private void toggleMenue() { 
+    menu2.gameObject.SetActive(false);
+    menuVisible = !menuVisible;
+    menu1.gameObject.SetActive(menuVisible);
+}
+
+
+//FUNCTIONS FOR BUTTONS
+public void switchMenu()
+    {
+        menu1.gameObject.SetActive(!menu1.gameObject.activeSelf);
+        menu2.gameObject.SetActive(!menu2.gameObject.activeSelf);
+     }
+
+    public void activateNearSimple()
+    {
+        choosenInteraction = GrabMethods.NEAR_SIMPLE;
+        scriptNearSimple = GameObject.Find("Controller (right)").GetComponent<ControllerGrabObject>();
+       scriptNearSimple.enabled=true;
+        toggleMenue();
+        //scriptNearSimple.gameObject.SetActive(true);
+    }
+
+    public void activateNearStick()
+    {
+        choosenInteraction = GrabMethods.NEAR_STICK;
+    }
+
+    public void activateNearDist()
+    {
+        choosenInteraction = GrabMethods.NEAR_DIST;
+    }
+
+    public void activateFarController()
+    {
+        choosenInteraction = GrabMethods.FAR_CONTROLLER;
+    }
+
+    public void activateFarHMD()
+    {
+        choosenInteraction = GrabMethods.FAR_HMD;
+    }
+
+    public void activateFarGOGO()
+    {
+        choosenInteraction = GrabMethods.FAR_GOGO;
+    }
+
+    public void enableTeaching()
+    {
+        teaching = !teaching;
+
+        if (teaching) {
+            menu1.buttons[2].ButtonIcon = ONTeachSprite;
+        }
         else
         {
-            //menues[currentMenueId].gameObject.transform.SetParent(null);
-            menues[currentMenueId].gameObject.SetActive(false);
+            menu1.buttons[2].ButtonIcon = OFFTeachSprite;
         }
-
-
-        if (conInf.menuPressedDown[0] || conInf.menuPressedDown[1])
-        {
-            if ((conInf.menuPressedDown[0] && (currentMenueHandle == 0)) || (conInf.menuPressedDown[1] && (currentMenueHandle == 1)))
-            {
-                menu = false;
-                currentMenueHandle = -1;
-            }
-
-            else
-            {
-                menu = true;
-                if (conInf.menuPressedDown[0])
-                {
-                    currentMenueHandle = 0;
-                }
-                else if (conInf.menuPressedDown[1])
-                {
-                    currentMenueHandle = 1;
-                }
-            }
-        }
+        menu1.RegenerateButtons();
     }
+
+    public void reset()
+    {
+        //Reload scene? 
+    }
+
+    public void enableSnapping()
+    {
+        snap = !snap;
+
+        if (snap)
+        {
+            menu1.buttons[1].ButtonIcon = ONSnappingSprite;
+        }
+        else
+        {
+            menu1.buttons[1].ButtonIcon = OFFSnappingSprite;
+        }
+        menu1.RegenerateButtons();
+    }
+
+    public void startMesure()
+    {
+        //Start time and!?
+    }
+
+    private void DebugLogger(uint index, string button, string action, ControllerInteractionEventArgs e)
+    {
+        Debug.Log("Controller on index '" + index + "' " + button + " has been " + action
+                + " with a pressure of " + e.buttonPressure + " / trackpad axis at: " + e.touchpadAxis + " (" + e.touchpadAngle + " degrees)");
+    }
+
 }

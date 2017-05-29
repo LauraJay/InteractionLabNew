@@ -4,6 +4,7 @@ using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
 
+
 public class ControllerInfomations : MonoBehaviour {
 
     private List<int> controllerIndices = new List<int>();
@@ -105,5 +106,8 @@ public class ControllerInfomations : MonoBehaviour {
                     device2 = device;
             }
         }
+
+
+             
     }
 }

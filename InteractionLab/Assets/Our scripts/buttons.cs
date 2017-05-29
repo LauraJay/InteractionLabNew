@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class t_Button : MonoBehaviour {
-
-    public void hello()
-    {
-        //Debug.Log("HELLO!!!");
-    }
+public class buttons : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
