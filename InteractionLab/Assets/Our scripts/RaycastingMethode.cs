@@ -21,13 +21,18 @@ public class RaycastingMethode : MonoBehaviour
     private GameObject pressedController;
     private GameObject temp;
     private bool triggerState;
+    public static bool StartIsReady = false;
+
 
     GameObject holder;
-    GameObject pointer;
-    GameObject cursor;
-   
+    static GameObject pointer;
+    static GameObject cursor;
+    static Material newMaterial;
+
     Vector3 cursorScale = new Vector3(0.05f, 0.05f, 0.05f);
     float contactDistance = 0f;
+    private static int counter = 0;
+    static public Ray raycast;
     Transform contactTarget = null;
 
     private SteamVR_Controller.Device Controller
@@ -66,14 +71,16 @@ public class RaycastingMethode : MonoBehaviour
         }
     }
 
+
     // Use this for initialization
-    void Start()
+    void OldStart()
     {
         triggerState = false;
         pressedController = new GameObject();
         pressedController.name = "pressedController";
 
-        Material newMaterial = new Material(Shader.Find("Unlit/Color"));
+        newMaterial = new Material(Shader.Find("Unlit/TransparentColor"));
+        color = new Color(0, 0, 0, 255);
         newMaterial.SetColor("_Color", color);
 
         holder = new GameObject();
@@ -101,6 +108,7 @@ public class RaycastingMethode : MonoBehaviour
         }
 
         SetPointerTransform(length, thickness);
+        StartIsReady = true;
     }
 
     float GetBeamLength(bool bHit, RaycastHit hit)
@@ -141,10 +149,16 @@ public class RaycastingMethode : MonoBehaviour
 
     void Update()
     {
-        Ray raycast = new Ray(transform.position, transform.forward);
-                
+        if (counter == 0)
+        {
+            OldStart();
+            counter++;
+        }
+
+        raycast = new Ray(transform.position, transform.forward);
+
         bool rayHit = Physics.Raycast(raycast, out hitObject);
-        //show pointed at Objects
+        // show pointed at Objects
         // print object that was hit
         if (rayHit && hitObject.transform.tag == "Moveable")
         {
@@ -152,33 +166,28 @@ public class RaycastingMethode : MonoBehaviour
             Color grabbingColor = new Color(0, 255, 0, 1);
             cursorRenderer.material.color = grabbingColor;
             Debug.Log(hitObject.transform.gameObject.name);
+            Debug.Log("Touched moveable Object" + hitObject.transform.gameObject.name);
         }
-        else {
+        else
+        {
             MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
-            Color grabbingColor = new Color(0,0, 0, 1);
+            Color grabbingColor = new Color(0, 0, 0, 1);
             cursorRenderer.material.color = grabbingColor;
-           // Debug.Log(hitObject.transform.gameObject.name);
         }
 
         float beamLength = GetBeamLength(rayHit, hitObject);
         SetPointerTransform(beamLength, thickness);
-
-
-        // get current position & rotation of controller (we need a gameobject for parenting later)
-       // pressedController.transform.rotation = Controller.transform.rot;
-        //pressedController.transform.position = Controller.transform.pos;
-
 
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
         {
             GrabObject();
         }
 
-        else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState)
+
+        else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
         {
-            //&& hitObject.transform != null && hitObject.transform.tag == "Moveable"
             ReleaseObject();
-            Debug.Log("should release object");
+            // Debug.Log("should release object");
         }
 
 
@@ -186,24 +195,21 @@ public class RaycastingMethode : MonoBehaviour
     }
 
 
-   void GrabObject()
+    void GrabObject()
     {
-        //Raycast später/seltener aufrufen
-
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
 
-        //Rigidbody still legen
+        Debug.Log("Grabbed Object " + temp.transform.name);
+
     }
 
     void ReleaseObject()
     {
         temp.transform.SetParent(null);
-        // hitObject.transform.parent = null;
         Vector3 pos = temp.transform.position;
         Quaternion rot = temp.transform.rotation;
-       // Destroy(pressedController);
         pressedController = new GameObject();
         temp.transform.rotation = rot;
         temp.transform.position = pos;
@@ -211,6 +217,19 @@ public class RaycastingMethode : MonoBehaviour
         temp.transform.GetComponent<Rigidbody>().useGravity = true;
     }
 
+    static public void deleteRay()
+    {
+        newMaterial.color = new Color(0, 0, 0, 0);
+        cursor.GetComponent<MeshRenderer>().material = newMaterial;
+        pointer.GetComponent<MeshRenderer>().material = newMaterial;
+        StartIsReady = false;
+    }
 
+    static public void ActivateRay()
+    {
+        newMaterial.color = new Color(0, 0, 0, 255);
+        cursor.GetComponent<MeshRenderer>().material = newMaterial;
+        pointer.GetComponent<MeshRenderer>().material = newMaterial;
+    }
 
 }

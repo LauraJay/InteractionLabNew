@@ -14,7 +14,7 @@ public class ControllerGrabObject : MonoBehaviour {
     public bool snapObject = true;
     public Transform rightHandleSnap; 
     protected Rigidbody controllerAttachPoint;
-    protected Joint ControllerAttachPoint;
+   // protected Joint ControllerAttachPoint;
 
 
 
@@ -40,7 +40,6 @@ public class ControllerGrabObject : MonoBehaviour {
             return;
         }
         collidingObject = col.gameObject;
-        Debug.Log("Set Object " + collidingObject.transform.name);
     }
 
     public void OnTriggerEnter(Collider other)
@@ -103,9 +102,10 @@ public class ControllerGrabObject : MonoBehaviour {
     void Update () {
         if (Controller.GetHairTriggerDown())
         {
-            if (collidingObject)
+            if (collidingObject && collidingObject.transform.tag == ("Moveable") )
             {
-                GrabObject();
+                Debug.Log("Grabbed Object: " + collidingObject.transform.name);
+                GrabObject(); 
             }
         }
         if (Controller.GetHairTriggerUp())
@@ -117,18 +117,21 @@ public class ControllerGrabObject : MonoBehaviour {
         }
     }
 
-    //protected virtual void SetSnappedObjectPosition(GameObject obj)
-    //{
-    //    Debug.Log("Current Object " + obj.transform.name);
+    protected virtual void SetSnappedObjectPosition(GameObject obj)
+    {
+        Debug.Log("Current Object " + obj.transform.name);
+        controllerAttachPoint.position = Controller.transform.pos  + new Vector3(100,0,0);
+        controllerAttachPoint.rotation = Controller.transform.rot;
 
-    //    if (obj.transform == null)
-    //    {
-    //        obj.transform.position = controllerAttachPoint.transform.position;
-    //    }
-    //    else
-    //    {
-    //        obj.transform.rotation = controllerAttachPoint.transform.rotation * Quaternion.Euler(obj.transform.localEulerAngles);
-    //        obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
-    //    }
-    //}
+
+        if (obj.transform == null)
+        {
+            obj.transform.position = controllerAttachPoint.transform.position;
+        }
+        else
+        {
+            obj.transform.rotation = controllerAttachPoint.transform.rotation * Quaternion.Euler(obj.transform.localEulerAngles);
+            obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
+        }
+    }
 }

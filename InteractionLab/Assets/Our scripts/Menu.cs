@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using VRTK;
 
-public class Menu : MonoBehaviour {
+public class Menu : MonoBehaviour
+{
 
-    private enum GrabMethods  { NEAR_SIMPLE, NEAR_STICK, NEAR_DIST, FAR_CONTROLLER, FAR_HMD, FAR_GOGO , NONE};
-	private RadialMenu menu1;
-	private RadialMenu menu2;
-   	private GrabMethods choosenInteraction = GrabMethods.NONE; //(nothing is picked)
+    private enum GrabMethods { NEAR_SIMPLE, NEAR_STICK, NEAR_DIST, FAR_CONTROLLER, FAR_HMD, FAR_GOGO, NONE };
+    private RadialMenu menu1;
+    private RadialMenu menu2;
+    private GrabMethods choosenInteraction = GrabMethods.NONE; //(nothing is picked)
 
     public bool teaching;
-	public bool snap;
+    public bool snap;
     public bool menuVisible;
     public Sprite ONTeachSprite;
     public Sprite OFFTeachSprite;
@@ -19,8 +20,10 @@ public class Menu : MonoBehaviour {
     public Sprite OFFSnappingSprite;
     private VRTK_ControllerEvents controllerTracked;
     private ControllerGrabObject scriptNearSimple;
+    private RaycastingMethode scriptFarController;
+    private int counter = 0;
 
-    
+
 
     // Use this for initialization
     void Start()
@@ -29,7 +32,7 @@ public class Menu : MonoBehaviour {
         menu2 = GameObject.Find("Panel2").GetComponent<RadialMenu>();
         menu1.generateOnAwake = true;
         menu2.generateOnAwake = false;
-  
+
 
         if (GetComponent<VRTK_ControllerEvents>() == null)
         {
@@ -41,6 +44,8 @@ public class Menu : MonoBehaviour {
         GetComponent<VRTK_ControllerEvents>().ButtonTwoReleased += new ControllerInteractionEventHandler(DoButtonTwoReleased);
 
 
+
+
         teaching = true;
         snap = true;
         menuVisible = false;
@@ -50,11 +55,24 @@ public class Menu : MonoBehaviour {
 
     // Update is called once per frame
     void Update()
+    {  
+
+        if (RaycastingMethode.StartIsReady && counter == 0)
+        {
+            GetScripts();
+            RaycastingMethode.deleteRay();
+            scriptFarController.enabled = false;
+            counter++;
+        }
+    }
+
+    void GetScripts()
     {
+        scriptFarController = GameObject.Find("Controller (right)").GetComponent<RaycastingMethode>();
+        scriptNearSimple = GameObject.Find("Controller (right)").GetComponent<ControllerGrabObject>();
     }
 
 
-  
 
     private void DoButtonTwoPressed(object sender, ControllerInteractionEventArgs e)
     {
@@ -63,32 +81,34 @@ public class Menu : MonoBehaviour {
 
     private void DoButtonTwoReleased(object sender, ControllerInteractionEventArgs e)
     {
-       toggleMenue();
+        toggleMenue();
         DebugLogger(e.controllerIndex, "BUTTON TWO", "released", e);
     }
 
 
-    private void toggleMenue() { 
-    menu2.gameObject.SetActive(false);
-    menuVisible = !menuVisible;
-    menu1.gameObject.SetActive(menuVisible);
-}
-
-
-//FUNCTIONS FOR BUTTONS
-public void switchMenu()
+    private void toggleMenue()
     {
+        menu2.gameObject.SetActive(false);
+        menuVisible = !menuVisible;
+        menu1.gameObject.SetActive(menuVisible);
+    }
+
+
+    //FUNCTIONS FOR BUTTONS
+    public void switchMenu()
+    {
+        //GetScripts();
         menu1.gameObject.SetActive(!menu1.gameObject.activeSelf);
         menu2.gameObject.SetActive(!menu2.gameObject.activeSelf);
-     }
+    }
 
     public void activateNearSimple()
     {
+        RaycastingMethode.deleteRay();
         choosenInteraction = GrabMethods.NEAR_SIMPLE;
-        scriptNearSimple = GameObject.Find("Controller (right)").GetComponent<ControllerGrabObject>();
-       scriptNearSimple.enabled=true;
+        scriptNearSimple.enabled = true;
+        scriptFarController.enabled = false;
         toggleMenue();
-        //scriptNearSimple.gameObject.SetActive(true);
     }
 
     public void activateNearStick()
@@ -103,7 +123,11 @@ public void switchMenu()
 
     public void activateFarController()
     {
-        choosenInteraction = GrabMethods.FAR_CONTROLLER;
+        //choosenInteraction = GrabMethods.FAR_CONTROLLER;
+        scriptFarController.enabled = true;
+        scriptNearSimple.enabled = false;
+        RaycastingMethode.ActivateRay();
+        toggleMenue();
     }
 
     public void activateFarHMD()
@@ -120,7 +144,8 @@ public void switchMenu()
     {
         teaching = !teaching;
 
-        if (teaching) {
+        if (teaching)
+        {
             menu1.buttons[2].ButtonIcon = ONTeachSprite;
         }
         else
