@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-public class RaycastingMethode : MonoBehaviour
+public class RaycastingMethodeHMD : MonoBehaviour
 {
     public enum AxisType
     {
@@ -22,6 +22,10 @@ public class RaycastingMethode : MonoBehaviour
     private GameObject temp;
     private bool triggerState;
     public static bool StartIsReady = false;
+    private GameObject HMDEye;
+    
+
+
 
 
     GameObject holder;
@@ -40,6 +44,8 @@ public class RaycastingMethode : MonoBehaviour
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
     }
 
+
+
     void Awake()
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
@@ -47,7 +53,6 @@ public class RaycastingMethode : MonoBehaviour
 
     void SetPointerTransform(float setLength, float setThicknes)
     {
-        //if the additional decimal isn't added then the beam position glitches
         float beamPosition = setLength / (2 + 0.00001f);
 
         if (facingAxis == AxisType.XAxis)
@@ -75,6 +80,8 @@ public class RaycastingMethode : MonoBehaviour
     // Use this for initialization
     void OldStart()
     {
+         HMDEye = GameObject.Find("Camera (eye)");
+        var CameraObject = SteamVR_Render.Top();
         triggerState = false;
         pressedController = new GameObject();
         pressedController.name = "pressedController";
@@ -84,7 +91,7 @@ public class RaycastingMethode : MonoBehaviour
         newMaterial.SetColor("_Color", color);
 
         holder = new GameObject();
-        holder.transform.parent = this.transform;
+        holder.transform.parent = CameraObject.transform;
         holder.transform.localPosition = Vector3.zero;
 
         pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -154,11 +161,14 @@ public class RaycastingMethode : MonoBehaviour
             OldStart();
             counter++;
         }
-        raycast = new Ray(transform.position, transform.forward);
+        var CameraObject = SteamVR_Render.Top();
+        //Debug.Log("Camera Position x=" + CameraObject.transform.position.x + "  and y=" + CameraObject.transform.position.y);
 
+        raycast = new Ray(CameraObject.transform.position, CameraObject.transform.forward * length);
+       // raycast = new Ray(new Vector3(CameraObject.transform.position.x, CameraObject.transform.position.y+0.015f, CameraObject.transform.position.z), CameraObject.transform.forward * length);
         bool rayHit = Physics.Raycast(raycast, out hitObject);
-        // show pointed at Objects
-        // print object that was hit
+        
+
         if (rayHit && hitObject.transform.tag == "Moveable")
         {
             MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
@@ -177,20 +187,19 @@ public class RaycastingMethode : MonoBehaviour
         float beamLength = GetBeamLength(rayHit, hitObject);
         SetPointerTransform(beamLength, thickness);
 
-        if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
-        {
-            GrabObject();
-        }
+            if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
+             {
+                 GrabObject();
+             }
 
 
-        else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
-        {
-            ReleaseObject();
-            // Debug.Log("should release object");
-        }
+             else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
+             {
+                 ReleaseObject();
+             }
 
 
-        triggerState = Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger);
+             triggerState = Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger);   
     }
 
 
@@ -199,9 +208,6 @@ public class RaycastingMethode : MonoBehaviour
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
-
-        Debug.Log("Grabbed Object " + temp.transform.name);
-
     }
 
     void ReleaseObject()

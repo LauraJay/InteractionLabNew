@@ -2,24 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerGrabObject : MonoBehaviour {
+public class ControllerGrabObject : MonoBehaviour
+{
 
     private SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
     private GameObject objectInHand;
 
-
-
     // testing for snapping
-    public bool snapObject = true;
-    public Transform rightHandleSnap; 
+    public bool snapObject = false;
     protected Rigidbody controllerAttachPoint;
-   // protected Joint ControllerAttachPoint;
+    protected FixedJoint givenJoint;
 
 
-
-    private void setObjectSnapping( bool snap ) {
-
+    public void setObjectSnapping(bool snap)
+    {
         snapObject = snap;
     }
 
@@ -66,15 +63,22 @@ public class ControllerGrabObject : MonoBehaviour {
     private void GrabObject()
     {
         objectInHand = collidingObject;
-      //  collidingObject = null;
-        //if (!snapObject) { 
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-    //}
-        //else if(snapObject) {
-        //    SetSnappedObjectPosition(collidingObject);
-        //}
-        //snapping 
+
+        if (!snapObject)
+        {
+            Debug.Log("no snapping " + snapObject);
+            var joint = AddFixedJoint();
+            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+        }
+
+        else if(snapObject)
+        {
+            Debug.Log("snapping " + snapObject);
+          
+           var joint = createJoint(GameObject.Find("Controller (right)"));
+            SetSnappedObjectPosition(collidingObject);
+            joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
+        }   
     }
 
     private FixedJoint AddFixedJoint()
@@ -87,7 +91,7 @@ public class ControllerGrabObject : MonoBehaviour {
 
     private void ReleaseObject()
     {
-       
+
         if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;
@@ -99,13 +103,14 @@ public class ControllerGrabObject : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (Controller.GetHairTriggerDown())
         {
-            if (collidingObject && collidingObject.transform.tag == ("Moveable") )
+            if (collidingObject && collidingObject.transform.tag == ("Moveable"))
             {
                 Debug.Log("Grabbed Object: " + collidingObject.transform.name);
-                GrabObject(); 
+                GrabObject();
             }
         }
         if (Controller.GetHairTriggerUp())
@@ -117,21 +122,22 @@ public class ControllerGrabObject : MonoBehaviour {
         }
     }
 
+    protected virtual FixedJoint createJoint(GameObject obj)
+    {
+        Debug.Log("create joint" + obj.transform.name);
+        givenJoint = obj.AddComponent<FixedJoint>();
+        givenJoint.breakForce = Mathf.Infinity;
+        return givenJoint; 
+    }
+
+
     protected virtual void SetSnappedObjectPosition(GameObject obj)
     {
         Debug.Log("Current Object " + obj.transform.name);
-        controllerAttachPoint.position = Controller.transform.pos  + new Vector3(100,0,0);
-        controllerAttachPoint.rotation = Controller.transform.rot;
+        controllerAttachPoint = GameObject.Find("Controller (right)").GetComponent<Rigidbody>();
 
-
-        if (obj.transform == null)
-        {
-            obj.transform.position = controllerAttachPoint.transform.position;
-        }
-        else
-        {
-            obj.transform.rotation = controllerAttachPoint.transform.rotation * Quaternion.Euler(obj.transform.localEulerAngles);
-            obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
-        }
+        obj.transform.rotation = controllerAttachPoint.transform.rotation; //* Quaternion.Euler(obj.transform.localEulerAngles);
+        obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
+ 
     }
 }
