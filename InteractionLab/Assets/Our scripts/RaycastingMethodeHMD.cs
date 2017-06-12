@@ -9,7 +9,8 @@ public class RaycastingMethodeHMD : MonoBehaviour
     public enum AxisType
     {
         XAxis,
-        ZAxis
+        ZAxis,
+       // YAxis
     }
     private SteamVR_TrackedObject trackedObj;
     public Color color;
@@ -38,18 +39,20 @@ public class RaycastingMethodeHMD : MonoBehaviour
     private static int counter = 0;
     static public Ray raycast;
     Transform contactTarget = null;
+    int ControllerID =3;
+    
 
-    private SteamVR_Controller.Device Controller
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
+    //private SteamVR_Controller.Device Controller
+    //{
+    //    get { return SteamVR_Controller.Input((int)trackedObj.index); }
+    //}
+   
 
 
-
-    void Awake()
-    {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
-    }
+    //void Awake()
+    //{
+    //    trackedObj = GetComponent<SteamVR_TrackedObject>();
+    //}
 
     void SetPointerTransform(float setLength, float setThicknes)
     {
@@ -80,7 +83,8 @@ public class RaycastingMethodeHMD : MonoBehaviour
     // Use this for initialization
     void OldStart()
     {
-         HMDEye = GameObject.Find("Camera (eye)");
+     
+        HMDEye = GameObject.Find("Camera (eye)");
         var CameraObject = SteamVR_Render.Top();
         triggerState = false;
         pressedController = new GameObject();
@@ -91,8 +95,9 @@ public class RaycastingMethodeHMD : MonoBehaviour
         newMaterial.SetColor("_Color", color);
 
         holder = new GameObject();
-        holder.transform.parent = CameraObject.transform;
-        holder.transform.localPosition = Vector3.zero;
+        holder.transform.parent = HMDEye.transform;
+        // holder.transform.localPosition = Vector3.zero;
+        holder.transform.position = HMDEye.transform.position;
 
         pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
         pointer.transform.parent = holder.transform;
@@ -162,9 +167,11 @@ public class RaycastingMethodeHMD : MonoBehaviour
             counter++;
         }
         var CameraObject = SteamVR_Render.Top();
-        //Debug.Log("Camera Position x=" + CameraObject.transform.position.x + "  and y=" + CameraObject.transform.position.y);
+        Debug.Log("Camera Position x=" + CameraObject.transform.position.x + "  and y=" + CameraObject.transform.position.y + " and z=" + CameraObject.transform.position.z);
+        //Debug.Log("Camera Rotation   x = " + CameraObject.transform.rotation.x + "  and y = " + CameraObject.transform.rotation.y + " and z = " + CameraObject.transform.rotation.z);
 
-        raycast = new Ray(CameraObject.transform.position, CameraObject.transform.forward * length);
+        raycast = new Ray(transform.position, transform.forward);
+        //raycast = new Ray(CameraObject.transform.position, CameraObject.transform.forward * length);
        // raycast = new Ray(new Vector3(CameraObject.transform.position.x, CameraObject.transform.position.y+0.015f, CameraObject.transform.position.z), CameraObject.transform.forward * length);
         bool rayHit = Physics.Raycast(raycast, out hitObject);
         
@@ -187,19 +194,19 @@ public class RaycastingMethodeHMD : MonoBehaviour
         float beamLength = GetBeamLength(rayHit, hitObject);
         SetPointerTransform(beamLength, thickness);
 
-            if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
+            if (SteamVR_Controller.Input(ControllerID).GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
              {
                  GrabObject();
              }
 
 
-             else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
+             else if (!SteamVR_Controller.Input(ControllerID).GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
              {
                  ReleaseObject();
              }
 
 
-             triggerState = Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger);   
+             triggerState = SteamVR_Controller.Input(ControllerID).GetPress(SteamVR_Controller.ButtonMask.Trigger);   
     }
 
 
