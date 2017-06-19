@@ -9,10 +9,9 @@ public class RaycastingMethodeHMD : MonoBehaviour
     public enum AxisType
     {
         XAxis,
-        ZAxis,
-       // YAxis
+        ZAxis
     }
-    private SteamVR_TrackedObject trackedObj;
+   // private SteamVR_TrackedObject trackedObj;
     public Color color;
     public float thickness = 0.004f;
     public AxisType facingAxis = AxisType.XAxis;
@@ -24,10 +23,6 @@ public class RaycastingMethodeHMD : MonoBehaviour
     private bool triggerState;
     public static bool StartIsReady = false;
     private GameObject HMDEye;
-    
-
-
-
 
     GameObject holder;
     static GameObject pointer;
@@ -83,9 +78,8 @@ public class RaycastingMethodeHMD : MonoBehaviour
     // Use this for initialization
     void OldStart()
     {
-     
         HMDEye = GameObject.Find("Camera (eye)");
-        var CameraObject = SteamVR_Render.Top();
+       var CameraObject = SteamVR_Render.Top();
         triggerState = false;
         pressedController = new GameObject();
         pressedController.name = "pressedController";
@@ -95,9 +89,16 @@ public class RaycastingMethodeHMD : MonoBehaviour
         newMaterial.SetColor("_Color", color);
 
         holder = new GameObject();
-        holder.transform.parent = HMDEye.transform;
-        // holder.transform.localPosition = Vector3.zero;
+        //holder.transform.parent = HMDEye.transform;
+        //holder.transform.localPosition = Vector3.zero;
         holder.transform.position = HMDEye.transform.position;
+        holder.transform.rotation = HMDEye.transform.rotation;
+
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.position = HMDEye.transform.position;
+        cube.transform.rotation = HMDEye.transform.rotation;
+        cube.transform.localScale = new Vector3(.1f, .1f, .1f);
+
 
         pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
         pointer.transform.parent = holder.transform;
@@ -167,12 +168,19 @@ public class RaycastingMethodeHMD : MonoBehaviour
             counter++;
         }
         var CameraObject = SteamVR_Render.Top();
-        Debug.Log("Camera Position x=" + CameraObject.transform.position.x + "  and y=" + CameraObject.transform.position.y + " and z=" + CameraObject.transform.position.z);
+        Debug.Log("Camera local Position x=" + CameraObject.transform.localPosition.x + "  and y=" + CameraObject.transform.localPosition.y + " and z=" + CameraObject.transform.localPosition.z);
         //Debug.Log("Camera Rotation   x = " + CameraObject.transform.rotation.x + "  and y = " + CameraObject.transform.rotation.y + " and z = " + CameraObject.transform.rotation.z);
+        //         Debug.Log("Camera Rotoation x=" + (CameraObject.transform.rotation.x - HMDEye.transform.rotation.x) + "  and y=" +( CameraObject.transform.rotation.y - HMDEye.transform.rotation.y) + " and z=" + (CameraObject.transform.rotation.z - HMDEye.transform.rotation.z));
+        Debug.Log("hmd local Position x=" + HMDEye.transform.localPosition.x + "  and y=" + HMDEye.transform.localPosition.y + " and z=" + HMDEye.transform.localPosition.z);
+
+        Debug.Log("diff Position x=" + (CameraObject.transform.localPosition.x - HMDEye.transform.localPosition.x) + "  and y=" + (CameraObject.transform.localPosition.y - HMDEye.transform.localPosition.y) + " and z=" + (CameraObject.transform.localPosition.z - HMDEye.transform.localPosition.z));
+        holder.transform.position = HMDEye.transform.position;
+        holder.transform.rotation = HMDEye.transform.rotation;
 
         raycast = new Ray(transform.position, transform.forward);
+        //raycast = new Ray(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward);
         //raycast = new Ray(CameraObject.transform.position, CameraObject.transform.forward * length);
-       // raycast = new Ray(new Vector3(CameraObject.transform.position.x, CameraObject.transform.position.y+0.015f, CameraObject.transform.position.z), CameraObject.transform.forward * length);
+        //raycast = new Ray(new Vector3(CameraObject.transform.position.x, CameraObject.transform.position.y+0.015f, CameraObject.transform.position.z), CameraObject.transform.forward * length);
         bool rayHit = Physics.Raycast(raycast, out hitObject);
         
 
