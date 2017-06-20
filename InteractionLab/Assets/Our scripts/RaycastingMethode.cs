@@ -180,6 +180,7 @@ public class RaycastingMethode : MonoBehaviour
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
         {
             GrabObject();
+
         }
 
 
@@ -199,7 +200,13 @@ public class RaycastingMethode : MonoBehaviour
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
-
+        string name = temp.name;
+        if (name.Equals("TargetObject"))
+        {
+            TargetTest t = temp.GetComponent<TargetTest>();
+            if (t != null) t.stopGrabTIme();
+          
+        }
         Debug.Log("Grabbed Object " + temp.transform.name);
 
     }

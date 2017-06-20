@@ -20,46 +20,15 @@ public class SwitchRoom : MonoBehaviour {
     private bool alreadyChanged;
 
     //CONS - Buildsettings
-    private int learning = 0;
-    private int supermarket = 1;
+    private enum room { learn, supermarket1_1, supermarket1_2, supermarket1_3, supermarket2_1, supermarket2_2, supermarket2_3, supermarket2_4 };
+    private room currentRoom;
+   // private int learning = 0;
+    //private int supermarketAufg1 = 1;
 
-    private void OnDeviceConnected(int deviceid, bool isConnected)
-    {
-        int index = deviceid;
-
-        var system = OpenVR.System;
-        if (system == null || system.GetTrackedDeviceClass((uint)index) != ETrackedDeviceClass.Controller)
-            return;
-
-
-        if (isConnected)
-        {
-            Debug.Log(string.Format("Controller {0} connected.", index));
-            controllerIndices.Add(index);
-            currentTriggeredObject.Add(null);
-            currentTriggeredObject.Add(null);
-            viveControllerConnected++;
-        }
-        else
-        {
-            Debug.Log(string.Format("Controller {0} disconnected.", index));
-            controllerIndices.Remove(index);
-        }
-    }
-
-    void OnEnable()
-    {
-        SteamVR_Events.DeviceConnected.Listen(OnDeviceConnected);
-    }
-
-    void OnDisable()
-    {
-        SteamVR_Events.DeviceConnected.Remove(OnDeviceConnected);
-    }
 
     // Use this for initialization
     void Start () {
-        alreadyChanged = false;
+
        
 
     }
@@ -68,43 +37,24 @@ public class SwitchRoom : MonoBehaviour {
     void Update()
     {
 
-        if (viveControllerConnected >= 1)
-        {
-            //Debug.Log("connected");
-            //GET CONTROLLER DATA
-            SteamVR_Controller.Device device;
 
-            for (int deviceId = 0; deviceId < controllerIndices.Count; deviceId++)
-            {
-                device = SteamVR_Controller.Input(controllerIndices[deviceId]);
-                
-                if (device != null)
-                { 
-                    gripPressedDown[deviceId] = device.GetPressDown(grip);
-
-                }
-            }
-
-        }
-
-        //Debug.Log("grip pressed? " + gripPressedDown[0]);
     }
 
     void OnTriggerEnter(Collider other)
     {
         currentScene = SceneManager.GetActiveScene();
-        currentID = currentScene.buildIndex;
-        Debug.Log("ID: " + currentID);
+        currentRoom = (room) currentScene.buildIndex;
+        Debug.Log("ID: " + currentRoom);
         
-        if (currentID == learning)
+        if (currentRoom == room.learn)
         {
-            SceneManager.LoadScene(supermarket, LoadSceneMode.Single);
-            Debug.Log("load supermarkt");
+            SceneManager.LoadScene((int)room.supermarket1_1, LoadSceneMode.Single);
+            Debug.Log("load supermarkt1_1");
         }
-        if (currentID == supermarket)
+        if (currentRoom == room.supermarket1_1)
         {
-            SceneManager.LoadScene(learning, LoadSceneMode.Single);
-            Debug.Log("load learning");
+            SceneManager.LoadScene((int)room.supermarket1_2, LoadSceneMode.Single);
+            Debug.Log("load supermarkt1_2");
         }
     }
 

@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class TargetTest : MonoBehaviour
 {
-
+    private TimeMeasure grabTm;
+    private TimeMeasure posTm;
     private GameObject targetArea;
     private GameObject collidingObject;
-    private Vector3 startPos;
-    private Texture objectTex;
-    private Vector3 objectCol;
-    private Vector3 objectOutline;
+    private long grabTime = 0;
+    private long posTime = 0;
+
 
     public Material material;
 
@@ -18,41 +18,33 @@ public class TargetTest : MonoBehaviour
     void Start()
     {
         targetArea = GameObject.Find("TargetArea");
-        //targetArea.GetComponent("Mesh Collider");
-        collidingObject = GameObject.Find("smallCube");
-        //collidingObject = GameObject.Find("Apple/Sphere");
-        startPos = collidingObject.transform.position;
-
-        objectTex = collidingObject.GetComponent<MeshRenderer>().material.GetTexture("_MainTex");
-        objectCol = collidingObject.GetComponent<MeshRenderer>().material.GetVector("_Color");
-        material.mainTexture = objectTex;
-        material.SetColor("_Color", new Color(objectCol.x, objectCol.y, objectCol.z));
-        material.SetColor("_OutlineColor", new Color(1, 1, 1));
-        material.SetFloat("_Outline", 0.01f);
-        collidingObject.GetComponent<MeshRenderer>().material = material;
+        collidingObject = GameObject.FindGameObjectWithTag("Moveable");
+        grabTm = new TimeMeasure();
+        posTm = new TimeMeasure();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            collidingObject.transform.localPosition = new Vector3(0.192f, 1.04f, 0.246f);
-        }
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            collidingObject.transform.localPosition = startPos;
-        }
 
+        
 
     }
 
+    public void startGrabTime() {
+        grabTm.startTimeMeasure();
+    }
 
+    public void stopGrabTIme() {
+        grabTime = grabTm.StopTimeMeasure();
+        posTm.startTimeMeasure();
+    }
     public void OnCollisionEnter(Collision other)
     {
+        posTime= posTm.StopTimeMeasure();
+        Debug.Log("Zeit" + posTime);
         Debug.Log("Enter");
-        //change outline
-        material.SetColor("_OutlineColor", new Color(1, 0, 0));
+        targetArea.GetComponent<MeshRenderer>().material = material;
     }
 
    // public void OnTriggerStay(Collider other)
@@ -65,7 +57,6 @@ public class TargetTest : MonoBehaviour
     public void OnCollisionExit(Collision other)
     {
         Debug.Log("Exit");
-        material.SetColor("_OutlineColor", new Color(1, 1, 1));
     }
 
 }
