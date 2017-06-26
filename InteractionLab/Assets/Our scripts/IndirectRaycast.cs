@@ -11,7 +11,7 @@ public class IndirectRaycast : MonoBehaviour
     }
     public float thickness = 0.004f;
     public AxisType facingAxis = AxisType.XAxis;
-    public float length = 100f;
+    public float length = 5f;
 
 
     private SteamVR_TrackedObject trackedObj;
@@ -25,18 +25,15 @@ public class IndirectRaycast : MonoBehaviour
     Vector3 cursorScale = new Vector3(0.05f, 0.05f, 0.05f);
     private bool showCursor = true;
     private bool StartIsReady = false;
+    private bool canChangeColor = true;
+    private Color saveColor;
+    private GameObject resetColor;
+
     private float step;
 
-    // testing for snapping
-    public bool snapObject = false;
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
-
-    public void setObjectSnapping(bool snap)
-    {
-        snapObject = snap;
-    }
 
     private SteamVR_Controller.Device Controller
     {
@@ -63,7 +60,8 @@ public class IndirectRaycast : MonoBehaviour
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
 
         pointer.GetComponent<BoxCollider>().isTrigger = true;
-        pointer.AddComponent<Rigidbody>().isKinematic = true;
+        pointer.AddComponent<Rigidbody>().isKinematic = false;
+        pointer.GetComponent<Rigidbody>().useGravity = false;
         pointer.layer = 2;
 
         if (showCursor)
@@ -73,10 +71,11 @@ public class IndirectRaycast : MonoBehaviour
             cursor.GetComponent<MeshRenderer>().material = newMaterial;
             cursor.transform.localScale = cursorScale;
             cursor.GetComponent<SphereCollider>().isTrigger = true;
-            cursor.AddComponent<Rigidbody>().isKinematic = true;
+            cursor.AddComponent<Rigidbody>().isKinematic = false;
             cursor.GetComponent<Rigidbody>().useGravity = false;
 
             cursor.layer = 2;
+
         }
 
         SetPointerTransform(length, thickness);
@@ -85,7 +84,7 @@ public class IndirectRaycast : MonoBehaviour
 
     private void SetCollidingObject(Collider col)
     {
-        if (collidingObject || !col.GetComponent<Rigidbody>())// || !col.Equals(cursor.GetComponent<SphereCollider>()))
+        if (collidingObject || !col.GetComponent<Rigidbody>() || col.name.Equals("Cube") || col.name.Equals("Sphere"))
         {
             return;
         }
@@ -116,24 +115,10 @@ public class IndirectRaycast : MonoBehaviour
 
     private void GrabObject()
     {
-      
         objectInHand = collidingObject;
 
-        if (!snapObject)
-        {
-            Debug.Log("no snapping " + snapObject);
-            var joint = AddFixedJoint();
-            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-        }
-
-        else if (snapObject)
-        {
-            Debug.Log("snapping " + snapObject);
-
-            var joint = createJoint(GameObject.Find("Controller (right)"));
-            SetSnappedObjectPosition(collidingObject);
-            joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
-        }
+        objectInHand.GetComponent<Rigidbody>().isKinematic = true; 
+        objectInHand.transform.SetParent( cursor.transform );
     }
 
     private FixedJoint AddFixedJoint()
@@ -154,7 +139,11 @@ public class IndirectRaycast : MonoBehaviour
             objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
+        objectInHand.transform.SetParent(null);
+        objectInHand.GetComponent<Rigidbody>().isKinematic = false;
+        objectInHand.GetComponent<Rigidbody>().useGravity = true; 
         objectInHand = null;
+        
     }
 
     // Update is called once per frame
@@ -164,31 +153,56 @@ public class IndirectRaycast : MonoBehaviour
         if (!StartIsReady)
         {
             OldStart();
+            this.gameObject.AddComponent<SphereCollider>();
+            this.GetComponent<SphereCollider>().radius = cursorScale.x / 2;
+            this.GetComponent<SphereCollider>().center = new Vector3(0, 0, (length - cursorScale.x));
+            this.GetComponent<SphereCollider>().isTrigger = true;
+            Destroy(this.GetComponent<BoxCollider>());
         }
+
+
+        if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
+        {
+            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
+            Color grabbingColor = new Color(0, 255, 0, 1);
+            cursorRenderer.material.color = grabbingColor;
+            canChangeColor = false;
+           
+        }
+        else if (!canChangeColor && !collidingObject)
+        {
+            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
+            Color grabbingColor = new Color(0, 0, 0, 1);
+            cursorRenderer.material.color = grabbingColor;
+            canChangeColor = true;
+        }
+
+
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
-        // if (Controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad))
         {
             Vector2 touchpad = (Controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
-            print("Pressing Touchpad");
+            //print("Pressing Touchpad");
 
             if (touchpad.y > 0.3f)
             {
-                if (length < 100 * step)
+                if (length < 10000 * step)
                 {
-                    print("Moving Up");
+                    length += step;
+                    this.GetComponent<SphereCollider>().center = new Vector3(0, 0, (length - cursorScale.x));
                 }
-                length += step;
+               // print("Moving Up");
+
             }
 
             else if (touchpad.y < -0.3f)
             {
                 if (length > step) { 
-                length -= step;
+                    length -= step;
+                    this.GetComponent<SphereCollider>().center = new Vector3(0, 0, (length - cursorScale.x));
                 }
-                print("Moving Down");
+               // print("Moving Down");
             }
 
-  
 
         }
         SetPointerTransform(length, thickness);
@@ -218,15 +232,6 @@ public class IndirectRaycast : MonoBehaviour
     }
 
 
-    protected virtual void SetSnappedObjectPosition(GameObject obj)
-    {
-        Debug.Log("Current Object " + obj.transform.name);
-        controllerAttachPoint = GameObject.Find("Controller (right)").GetComponent<Rigidbody>();
-
-        obj.transform.rotation = controllerAttachPoint.transform.rotation; //* Quaternion.Euler(obj.transform.localEulerAngles);
-        obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
-
-    }
     void SetPointerTransform(float setLength, float setThicknes)
     {
         //if the additional decimal isn't added then the beam position glitches
