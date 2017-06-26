@@ -200,14 +200,18 @@ public class RaycastingMethode : MonoBehaviour
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
+        Debug.Log("Grabbed Object " + temp.transform.name);
         string name = temp.name;
         if (name.Equals("TargetObject"))
         {
             TargetTest t = temp.GetComponent<TargetTest>();
-            if (t != null) t.stopGrabTIme();
-          
+            if (t != null)
+            {
+                t.startGrabTime();
+                Debug.Log("GrabTIme/start  ");
+            }
+
         }
-        Debug.Log("Grabbed Object " + temp.transform.name);
 
     }
 
@@ -221,6 +225,17 @@ public class RaycastingMethode : MonoBehaviour
         temp.transform.position = pos;
         temp.transform.GetComponent<Rigidbody>().isKinematic = false;
         temp.transform.GetComponent<Rigidbody>().useGravity = true;
+
+        if (temp.name.Equals("TargetObject"))
+        {
+            TargetTest t = temp.GetComponent<TargetTest>();
+            if (t != null)
+            {
+                t.stopGrabTIme();
+                Debug.Log("stop GrabTIme/start PosTIme ");
+            }
+
+        }
     }
 
     static public void deleteRay()

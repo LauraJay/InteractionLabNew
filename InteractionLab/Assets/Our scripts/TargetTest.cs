@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class TargetTest : MonoBehaviour
 {
-    private TimeMeasure grabTm;
-    private TimeMeasure posTm;
+    private Measurements grabTm;
+    private Measurements posTm;
     private GameObject targetArea;
     private GameObject collidingObject;
     private long grabTime = 0;
@@ -19,8 +19,10 @@ public class TargetTest : MonoBehaviour
     {
         targetArea = GameObject.Find("TargetArea");
         collidingObject = GameObject.FindGameObjectWithTag("Moveable");
-        grabTm = new TimeMeasure();
-        posTm = new TimeMeasure();
+        grabTm = new Measurements();
+        grabTm.initMeasurements();
+        posTm = new Measurements();
+        posTm.initMeasurements();
     }
 
     // Update is called once per frame
@@ -29,6 +31,17 @@ public class TargetTest : MonoBehaviour
 
         
 
+    }
+
+    public void startPosTime()
+    {
+        posTm.startTimeMeasure();
+    }
+
+    public void stopPosTIme()
+    {
+        posTime = posTm.StopTimeMeasure();
+        
     }
 
     public void startGrabTime() {
@@ -41,9 +54,8 @@ public class TargetTest : MonoBehaviour
     }
     public void OnCollisionEnter(Collision other)
     {
-        posTime= posTm.StopTimeMeasure();
-        Debug.Log("Zeit" + posTime);
         Debug.Log("Enter");
+        stopPosTIme();
         targetArea.GetComponent<MeshRenderer>().material = material;
     }
 

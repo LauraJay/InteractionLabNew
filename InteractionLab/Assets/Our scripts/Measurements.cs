@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 
-public class TimeMeasure : MonoBehaviour {
+public class Measurements : MonoBehaviour {
     private Stopwatch sw;
 	// Use this for initialization
 	void Start () {
-        sw = new Stopwatch();
         
 	}
 
     public void startTimeMeasure()
     {
-        sw = new Stopwatch();
         sw.Start();
+        //UnityEngine.Debug.Log("Start Stopwatch");
     }
 
     public void clearTimeMeasure()
@@ -24,8 +23,17 @@ public class TimeMeasure : MonoBehaviour {
 
     public long StopTimeMeasure()
     {
+        if (sw.IsRunning)
+        {
         sw.Stop();
+        UnityEngine.Debug.Log("Stop Stopwatch: "+ sw.ElapsedMilliseconds+"ms");
         return sw.ElapsedMilliseconds;
+        }
+        return 0;
+    }
+    public void initMeasurements() {
+        sw = new Stopwatch();
+
     }
 
     public bool pauseTimeMeasure()
@@ -47,6 +55,5 @@ public class TimeMeasure : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		
-	}
+     	}
 }
