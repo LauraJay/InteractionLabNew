@@ -29,18 +29,27 @@ public class Menu : MonoBehaviour
     public Sprite OFFTaskSprite;
 
     private VRTK_ControllerEvents controllerTracked;
+    private bool start;
+    private RadialMenu menu0;
     private RadialMenu menu1;
     private RadialMenu menu2;
     private int counter = 0;
 
     private GameObject switchScene;
 
+    private TargetTest tTest;
+    enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
+
+
     // Use this for initialization
     void Start()
     {
+        start = true;
+        menu0 = GameObject.Find("Panel0").GetComponent<RadialMenu>();
         menu1 = GameObject.Find("Panel1").GetComponent<RadialMenu>();
         menu2 = GameObject.Find("Panel2").GetComponent<RadialMenu>();
-        menu1.generateOnAwake = true;
+        menu0.generateOnAwake = true;
+        menu1.generateOnAwake = false;
         menu2.generateOnAwake = false;
 
         if (GetComponent<VRTK_ControllerEvents>() == null)
@@ -57,11 +66,14 @@ public class Menu : MonoBehaviour
         showingTask = true;
         menuVisible = false;
         activateSwitchRoom = false;
+        menu0.gameObject.SetActive(menuVisible);
         menu1.gameObject.SetActive(menuVisible);
         menu2.gameObject.SetActive(menuVisible);
 
         switchScene = GameObject.Find("switchScene");
         switchScene.SetActive(false);
+
+        tTest = GameObject.Find("TargetObject").GetComponent<TargetTest>();
     }
 
     // Update is called once per frame
@@ -106,9 +118,20 @@ public class Menu : MonoBehaviour
     //Switchen menu on and off
     private void toggleMenue()
     {
-        menu2.gameObject.SetActive(false);
-        menuVisible = !menuVisible;
-        menu1.gameObject.SetActive(menuVisible);
+        if (start)
+        {
+            menu1.gameObject.SetActive(false);
+            menu2.gameObject.SetActive(false);
+            menuVisible = !menuVisible;
+            menu0.gameObject.SetActive(menuVisible);
+        }
+        else
+        {
+            menu0.gameObject.SetActive(false);
+            menu2.gameObject.SetActive(false);
+            menuVisible = !menuVisible;
+            menu1.gameObject.SetActive(menuVisible);
+        }
     }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -127,17 +150,22 @@ public class Menu : MonoBehaviour
         choosenInteraction = GrabMethods.NEAR_SIMPLE;
         scriptNearSimple.enabled = true;
         scriptFarController.enabled = false;
+        tTest.setMethodID((int)Method.CLOSE_SIMPLE);
         toggleMenue();
     }
 
     public void activateNearStick()
     {
         choosenInteraction = GrabMethods.NEAR_STICK;
+        tTest.setMethodID((int)Method.CLOSE_ROD);
+
     }
 
     public void activateNearDist()
     {
         choosenInteraction = GrabMethods.NEAR_DIST;
+        tTest.setMethodID((int)Method.CLOSE_DIST);
+
     }
 
     public void activateFarController()
@@ -146,6 +174,7 @@ public class Menu : MonoBehaviour
         scriptFarController.enabled = true;
         scriptNearSimple.enabled = false;
         RaycastingMethode.ActivateRay();
+        tTest.setMethodID((int)Method.FAR_RAYCAST);
         toggleMenue();
     }
 
@@ -177,6 +206,8 @@ public class Menu : MonoBehaviour
     public void reset()
     {
         //Reload scene? 
+        tTest.getMeasurements().isSucessful(0);
+
     }
 
     public void enableSnapping()
@@ -186,18 +217,26 @@ public class Menu : MonoBehaviour
         if (snap)
         {
             menu1.buttons[1].ButtonIcon = ONSnappingSprite;
+            tTest.getMeasurements().useSnapping(1);
         }
         else
         {
             menu1.buttons[1].ButtonIcon = OFFSnappingSprite;
+            tTest.getMeasurements().useSnapping(0);
         }
         menu1.RegenerateButtons();
     }
 
     public void startMesure()
     {
-        TargetTest t = GameObject.Find("TargetObject").GetComponent<TargetTest>();
-        t.startGrabTime();
+        start = false;
+        menu0.gameObject.SetActive(false);
+        menu1.gameObject.SetActive(true);
+
+        
+        tTest.initMeasurements();
+        tTest.getMeasurements().startGrabTimeMeasure();
+        Debug.Log("Start Grab measure");
 
     }
 

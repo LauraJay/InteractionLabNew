@@ -22,6 +22,7 @@ public class RaycastingMethode : MonoBehaviour
     private GameObject temp;
     private bool triggerState;
     public static bool StartIsReady = false;
+    private TargetTest t;
 
 
     GameObject holder;
@@ -95,6 +96,8 @@ public class RaycastingMethode : MonoBehaviour
         pointer.AddComponent<Rigidbody>().isKinematic = true;
         pointer.layer = 2;
 
+
+
         if (showCursor)
         {
             cursor = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -164,8 +167,8 @@ public class RaycastingMethode : MonoBehaviour
             MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
             Color grabbingColor = new Color(0, 255, 0, 1);
             cursorRenderer.material.color = grabbingColor;
-            Debug.Log(hitObject.transform.gameObject.name);
-            Debug.Log("Touched moveable Object" + hitObject.transform.gameObject.name);
+            //Debug.Log(hitObject.transform.gameObject.name);
+            //Debug.Log("Touched moveable Object" + hitObject.transform.gameObject.name);
         }
         else
         {
@@ -200,41 +203,43 @@ public class RaycastingMethode : MonoBehaviour
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
+        temp.transform.GetComponent<Rigidbody>().useGravity = true;
+
         Debug.Log("Grabbed Object " + temp.transform.name);
         string name = temp.name;
         if (name.Equals("TargetObject"))
         {
-            TargetTest t = temp.GetComponent<TargetTest>();
+            t = temp.GetComponent<TargetTest>();
+
             if (t != null)
             {
-                t.startGrabTime();
-                Debug.Log("GrabTIme/start  ");
+                t.getMeasurements().StopGrabTimeMeasure();
+                Debug.Log("stop grab time / start pos time");
+                t.getMeasurements().incrementErrorRate();
+                Debug.Log("increment Error Rate");
             }
 
+        }
+        else {
+            t.getMeasurements().incrementWrongSelection();
         }
 
     }
 
     void ReleaseObject()
     {
-        temp.transform.SetParent(null);
-        Vector3 pos = temp.transform.position;
-        Quaternion rot = temp.transform.rotation;
-        pressedController = new GameObject();
-        temp.transform.rotation = rot;
-        temp.transform.position = pos;
-        temp.transform.GetComponent<Rigidbody>().isKinematic = false;
-        temp.transform.GetComponent<Rigidbody>().useGravity = true;
-
-        if (temp.name.Equals("TargetObject"))
+        if (temp != null)
         {
-            TargetTest t = temp.GetComponent<TargetTest>();
-            if (t != null)
-            {
-                t.stopGrabTIme();
-                Debug.Log("stop GrabTIme/start PosTIme ");
-            }
-
+            Debug.Log("Name of Release Object: " + temp.name);
+            temp.transform.SetParent(null);
+            Vector3 pos = temp.transform.position;
+            Quaternion rot = temp.transform.rotation;
+            pressedController = new GameObject();
+            temp.transform.rotation = rot;
+            temp.transform.position = pos;
+            temp.transform.GetComponent<Rigidbody>().isKinematic = false;
+            temp.transform.GetComponent<Rigidbody>().useGravity = true;
+            Debug.Log("Is Kinematik: " + temp.transform.GetComponent<Rigidbody>().isKinematic + ", use gravity: " + temp.transform.GetComponent<Rigidbody>().useGravity);
         }
     }
 

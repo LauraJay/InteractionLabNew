@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class TargetTest : MonoBehaviour
 {
-    private Measurements grabTm;
-    private Measurements posTm;
+    private Measurements m;
     private GameObject targetArea;
     private GameObject collidingObject;
-    private long grabTime = 0;
-    private long posTime = 0;
+    private enum ROOM { learn, supermarket1_1, supermarket1_2, supermarket1_3, supermarket2_1, supermarket2_2, supermarket2_3, supermarket2_4 };
+    enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
 
+    public int task = 1;
+    public int method = 3;
+    public int testId = 1;
 
     public Material material;
 
@@ -18,52 +20,75 @@ public class TargetTest : MonoBehaviour
     void Start()
     {
         targetArea = GameObject.Find("TargetArea");
-        collidingObject = GameObject.FindGameObjectWithTag("Moveable");
-        grabTm = new Measurements();
-        grabTm.initMeasurements();
-        posTm = new Measurements();
-        posTm.initMeasurements();
+        // add to menue start method
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        
+
 
     }
 
-    public void startPosTime()
+    public Measurements getMeasurements()
     {
-        posTm.startTimeMeasure();
+        return m;
     }
 
-    public void stopPosTIme()
+    public void setTaskID(int taskId)
     {
-        posTime = posTm.StopTimeMeasure();
-        
+        task = taskId;
+
+    }
+    public void setMethodID(int id)
+    {
+        method = id;
+
+    }
+    public void setTestID(int id)
+    {
+        testId = id;
+        m.setTestID(testId);
+
     }
 
-    public void startGrabTime() {
-        grabTm.startTimeMeasure();
+    public void initMeasurements()
+    {
+        m = new Measurements();
+        m.initMeasurements();
+        m.setTestID(testId);
     }
 
-    public void stopGrabTIme() {
-        grabTime = grabTm.StopTimeMeasure();
-        posTm.startTimeMeasure();
-    }
+
     public void OnCollisionEnter(Collision other)
     {
-        Debug.Log("Enter");
-        stopPosTIme();
-        targetArea.GetComponent<MeshRenderer>().material = material;
+        collidingObject = other.gameObject;
+
+        if (collidingObject.name.Equals("TargetArea"))
+        {
+            if (m != null)
+            {
+                m.StopPosTimeMeasure();
+                m.isSucessful(1);
+                Debug.Log("stop PosTIme ");
+                targetArea.GetComponent<MeshRenderer>().material = material;
+                long[] data = m.packMeasurements();
+                WriteMeasureFile wmf = new WriteMeasureFile();
+                wmf.addData2CSVFile((int)task,(int) method, data);
+
+            }
+
+        }
     }
 
-   // public void OnTriggerStay(Collider other)
-   // {
+    // public void OnTriggerStay(Collider other)
+    // {
     //    Debug.Log("Stay");
-   //     collidingObject.GetComponent<MeshRenderer>().materials.SetValue(testMaterial, 0);
-   // }
+    //     collidingObject.GetComponent<MeshRenderer>().materials.SetValue(testMaterial, 0);
+    // }
 
 
     public void OnCollisionExit(Collision other)
