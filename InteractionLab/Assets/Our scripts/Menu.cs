@@ -39,6 +39,26 @@ public class Menu : MonoBehaviour
 
     private TargetTest tTest;
     enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
+    enum CLOSEMethod { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD };
+    enum FarMethod { FAR_RAYCAST, FAR_INDIRECT_RAYD };
+
+
+    private int wrapCLoseToMethod(int close) {
+        int wrap = -1;
+        switch (close)
+        {
+            case (int)FarMethod.FAR_RAYCAST:
+                wrap = (int)Method.FAR_RAYCAST;
+                break;
+            case (int)FarMethod.FAR_INDIRECT_RAYD:
+                wrap = (int)Method.FAR_INDIRECT_RAY;
+                break;
+           default:
+                break;
+
+        }
+        return wrap;
+    }
 
 
     // Use this for initialization
