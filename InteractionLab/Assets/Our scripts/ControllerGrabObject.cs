@@ -14,6 +14,7 @@ public class ControllerGrabObject : MonoBehaviour
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
+    private SelfTeaching selfTeaching;
 
     public void setObjectSnapping(bool snap)
     {
@@ -62,6 +63,9 @@ public class ControllerGrabObject : MonoBehaviour
 
     private void GrabObject()
     {
+        selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
+        if (Menu.teaching) selfTeaching.setCounter(8);
+
         objectInHand = collidingObject;
 
         if (!snapObject)

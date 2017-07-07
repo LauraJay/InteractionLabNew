@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RaycastingMethode : MonoBehaviour
+public class AllRaycastMethods : MonoBehaviour
 {
     public enum AxisType
     {
@@ -13,7 +13,8 @@ public class RaycastingMethode : MonoBehaviour
     public Color color;
     public float thickness = 0.004f;
     public AxisType facingAxis = AxisType.XAxis;
-    public float length = 100f;
+    public static float length = 100f;
+    public static float lengthIndirect = 5f;
     public bool showCursor = true;
     public RaycastHit hitObject;
     //private GameObject pressedController;
@@ -33,6 +34,12 @@ public class RaycastingMethode : MonoBehaviour
     private static int counter = 0;
     static public Ray raycast;
     Transform contactTarget = null;
+    float step = 0.01f;
+    public static int caseRay;
+    MeshRenderer cursorRenderer;
+    MeshRenderer pointerRenderer;
+    Color releaseColor = new Color(0, 0, 0, 1);
+    Color grabbingColor = new Color(0, 255, 0, 1);
 
 
     private SteamVR_Controller.Device Controller
@@ -109,6 +116,9 @@ public class RaycastingMethode : MonoBehaviour
             cursor.layer = 2;
         }
 
+        cursorRenderer = cursor.GetComponent<MeshRenderer>();
+        pointerRenderer = pointer.GetComponent<MeshRenderer>();
+
         SetPointerTransform(length, thickness);
         StartIsReady = true;
     }
@@ -157,37 +167,58 @@ public class RaycastingMethode : MonoBehaviour
             counter++;
         }
         raycast = new Ray(transform.position, transform.forward);
+        
 
-        bool rayHit = Physics.Raycast(raycast, out hitObject);
+        float beamLength;
+        bool rayHit = false;
+        switch (caseRay)
+        {
+            case (int)Menu.Method.FAR_RAYCAST:
+               rayHit = Physics.Raycast(raycast, out hitObject);
+                beamLength = GetBeamLength(rayHit, hitObject);
+                SetPointerTransform(beamLength, thickness);
+                break;
+            case (int)Menu.Method.FAR_INDIRECT_RAY:
+                rayHit = Physics.Raycast(raycast, out hitObject, lengthIndirect);
+                scaleRay();
+                SetPointerTransform(lengthIndirect, thickness); break;
+            case (int)Menu.Method.CLOSE_ROD:
+                showCursor = false;
+                rayHit = Physics.Raycast(raycast, out hitObject, 0.15f);
+                SetPointerTransform(0.15f, 2*thickness); break;
+        }
         // show pointed at Objects
         // print object that was hit
         if (rayHit && hitObject.transform.tag == "Moveable")
-        {
-            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
-            Color grabbingColor = new Color(0, 255, 0, 1);
+        {      
             cursorRenderer.material.color = grabbingColor;
+            if (!showCursor)
+            {
+                pointerRenderer.material.color = grabbingColor;
+            }
             //Debug.Log(hitObject.transform.gameObject.name);
             //Debug.Log("Touched moveable Object" + hitObject.transform.gameObject.name);
         }
         else
         {
-            MeshRenderer cursorRenderer = cursor.GetComponent<MeshRenderer>();
-            Color grabbingColor = new Color(0, 0, 0, 1);
-            cursorRenderer.material.color = grabbingColor;
+            cursorRenderer.material.color = releaseColor;
+            if (!showCursor)
+            {
+                pointerRenderer.material.color = releaseColor;
+            }
         }
+      
 
-
-            float beamLength = GetBeamLength(rayHit, hitObject);
-        SetPointerTransform(beamLength, thickness); 
+ 
 
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !triggerState && rayHit && hitObject.transform.tag == "Moveable")
         {
             GrabObject();
         }
-       
 
 
-            else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
+
+        else if (!Controller.GetPress(SteamVR_Controller.ButtonMask.Trigger) && triggerState && hitObject.transform != null)
         {
             ReleaseObject();
             // Debug.Log("should release object");
@@ -254,6 +285,10 @@ public class RaycastingMethode : MonoBehaviour
         newMaterial.color = new Color(0, 0, 0, 0);
         cursor.GetComponent<MeshRenderer>().material = newMaterial;
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
+        //length = 0f;
+        //lengthIndirect = 0f;
+        //SetPointerTransform(length, thickness);
+        //SetPointerTransform(lengthIndirect, thickness);
         StartIsReady = false;
     }
 
@@ -262,6 +297,43 @@ public class RaycastingMethode : MonoBehaviour
         newMaterial.color = new Color(0, 0, 0, 255);
         cursor.GetComponent<MeshRenderer>().material = newMaterial;
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
+        //length = 100.0f;
+        //lengthIndirect = 5.0f;
+    }
+
+    void scaleRay()
+    {
+        if (Controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
+        {
+            Vector2 touchpad = (Controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
+            //print("Pressing Touchpad");
+
+            if (touchpad.y > 0.3f)
+            {
+                if (lengthIndirect < 10000 * step)
+                {
+                    lengthIndirect += step;
+                }
+                // print("Moving Up");
+
+            }
+
+            else if (touchpad.y < -0.3f)
+            {
+                if (lengthIndirect > step)
+                {
+                    lengthIndirect -= step;
+                }
+                // print("Moving Down");
+            }
+
+
+        }
     }
 
 }
+
+
+
+
+

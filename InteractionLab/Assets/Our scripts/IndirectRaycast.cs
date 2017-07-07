@@ -18,14 +18,15 @@ public class IndirectRaycast : MonoBehaviour
     private GameObject collidingObject;
     private GameObject objectInHand;
     GameObject holder;
-    static GameObject pointer;
-    static GameObject cursor;
+    private static GameObject pointer;
+    private static GameObject cursor;
     static Material newMaterial;
     public Color color;
     Vector3 cursorScale = new Vector3(0.05f, 0.05f, 0.05f);
     private bool showCursor = true;
-    private bool StartIsReady = false;
+    public static bool StartIsReady = false;
     private bool canChangeColor = true;
+    private static bool deleteIsCalled = false;
     private Color saveColor;
     private GameObject resetColor;
 
@@ -45,7 +46,8 @@ public class IndirectRaycast : MonoBehaviour
         trackedObj = GetComponent<SteamVR_TrackedObject>();
     }
 
-    private void OldStart() {
+    private void OldStart()
+    {
         step = 0.01f;
         newMaterial = new Material(Shader.Find("Unlit/TransparentColor"));
         color = new Color(0, 0, 0, 255);
@@ -117,8 +119,8 @@ public class IndirectRaycast : MonoBehaviour
     {
         objectInHand = collidingObject;
 
-        objectInHand.GetComponent<Rigidbody>().isKinematic = true; 
-        objectInHand.transform.SetParent( cursor.transform );
+        objectInHand.GetComponent<Rigidbody>().isKinematic = true;
+        objectInHand.transform.SetParent(cursor.transform);
     }
 
     private FixedJoint AddFixedJoint()
@@ -141,9 +143,9 @@ public class IndirectRaycast : MonoBehaviour
         }
         objectInHand.transform.SetParent(null);
         objectInHand.GetComponent<Rigidbody>().isKinematic = false;
-        objectInHand.GetComponent<Rigidbody>().useGravity = true; 
+        objectInHand.GetComponent<Rigidbody>().useGravity = true;
         objectInHand = null;
-        
+
     }
 
     // Update is called once per frame
@@ -160,6 +162,12 @@ public class IndirectRaycast : MonoBehaviour
             Destroy(this.GetComponent<BoxCollider>());
         }
 
+        if (deleteIsCalled)
+        {
+            this.GetComponent<SphereCollider>().enabled = false;
+            Destroy(this.GetComponent<SphereCollider>());
+            deleteIsCalled = false;
+        }
 
         if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
         {
@@ -167,7 +175,7 @@ public class IndirectRaycast : MonoBehaviour
             Color grabbingColor = new Color(0, 255, 0, 1);
             cursorRenderer.material.color = grabbingColor;
             canChangeColor = false;
-           
+
         }
         else if (!canChangeColor && !collidingObject)
         {
@@ -190,17 +198,18 @@ public class IndirectRaycast : MonoBehaviour
                     length += step;
                     this.GetComponent<SphereCollider>().center = new Vector3(0, 0, (length - cursorScale.x));
                 }
-               // print("Moving Up");
+                // print("Moving Up");
 
             }
 
             else if (touchpad.y < -0.3f)
             {
-                if (length > step) { 
+                if (length > step)
+                {
                     length -= step;
                     this.GetComponent<SphereCollider>().center = new Vector3(0, 0, (length - cursorScale.x));
                 }
-               // print("Moving Down");
+                // print("Moving Down");
             }
 
 
@@ -256,5 +265,23 @@ public class IndirectRaycast : MonoBehaviour
                 cursor.transform.localPosition = new Vector3(0f, 0f, setLength - cursor.transform.localScale.z);
             }
         }
+    }
+
+    static public void deleteRay()
+    {
+        newMaterial.color = new Color(0, 0, 0, 0);
+        cursor.GetComponent<MeshRenderer>().material = newMaterial;
+        pointer.GetComponent<MeshRenderer>().material = newMaterial;
+        StartIsReady = false;
+       // cursor.GetComponent<SphereCollider>().enabled = false;
+       // Destroy(cursor.GetComponent<SphereCollider>());
+        deleteIsCalled = true;
+    }
+
+    static public void ActivateRay()
+    {
+        newMaterial.color = new Color(0, 0, 0, 255);
+        cursor.GetComponent<MeshRenderer>().material = newMaterial;
+        pointer.GetComponent<MeshRenderer>().material = newMaterial;
     }
 }

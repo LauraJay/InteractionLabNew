@@ -14,14 +14,14 @@ public class ControllerGrabViaRod : MonoBehaviour
     public float length = 0.15f;
     public Color color = Color.yellow;
 
-
+    public Vector3 position = new Vector3();
     private SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
     private GameObject objectInHand;
     GameObject holder;
     static GameObject pointer;
     static Material newMaterial;
-    private bool StartIsReady = false;
+    private static bool StartIsReady = false;
     private bool canChangeColor = true;
     private Color saveColor;
     private GameObject resetColor;
@@ -44,6 +44,13 @@ public class ControllerGrabViaRod : MonoBehaviour
 
     private void OldStart()
     {
+        if (Menu.RodIsEnabled)
+        {
+            this.GetComponent<BoxCollider>().enabled = true;
+            this.GetComponent<BoxCollider>().size = new Vector3(0.006f, 0.006f, 0.05f);
+            this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.125f);
+        }
+
         newMaterial = new Material(Shader.Find("Unlit/TransparentColor"));
         color = new Color(0, 0, 0, 255);
         newMaterial.SetColor("_Color", color);
@@ -51,7 +58,8 @@ public class ControllerGrabViaRod : MonoBehaviour
         holder = new GameObject();
         holder.transform.parent = this.transform;
         holder.transform.localPosition = Vector3.zero;
-        //holder.transform.localPosition = new Vector3(0, -0.02f, 0);
+        holder.transform.localPosition = position; //new Vector3(0, -0.05f, 0.2f);
+        //holder.transform.localRotation = Quaternion.Euler(0f, 180.0f, 0f);
 
         pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
         pointer.transform.parent = holder.transform;
@@ -135,12 +143,14 @@ public class ControllerGrabViaRod : MonoBehaviour
         if (!StartIsReady)
         {
             OldStart();
+           
             //this.GetComponent<BoxCollider>().size = new Vector3(0.005f, 0.005f, 0.3f);
-           // this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.02f);
+            // this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.02f);
+        }
 
-            this.GetComponent<BoxCollider>().size = new Vector3(0.006f, 0.006f, 0.05f);
-            this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.125f);
-
+        if (!Menu.RodIsEnabled)
+        {
+            this.GetComponent<BoxCollider>().enabled = false;
         }
 
         if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
@@ -210,4 +220,10 @@ public class ControllerGrabViaRod : MonoBehaviour
             pointer.transform.localPosition = new Vector3(0f, 0f, beamPosition);
         }
     }
+
+    //public static void deleteBoxCollider()
+    //{
+    //    this.GetComponent<BoxCollider>().enabled = false;
+    //    StartIsReady = false;
+    //}
 }
