@@ -17,6 +17,7 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
+    private SelfTeaching selfTeaching; 
 
     public void setObjectSnapping(bool snap)
     {
@@ -65,10 +66,15 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
 
     private void GrabObject()
     {
+        selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
+        //if (Menu.teaching) selfTeaching.increaseCounter();
+        
+
         objectInHand = collidingObject;
 
         if (!snapObject)
         {
+            if (Menu.teaching) selfTeaching.setCounter(16);
             Debug.Log("no snapping " + snapObject);
             var joint = AddFixedJoint();
             joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
@@ -76,6 +82,7 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
 
         else if (snapObject)
         {
+            if (Menu.teaching) selfTeaching.setCounter(21);
             Debug.Log("snapping " + snapObject);
 
             var joint = createJoint(GameObject.Find("Controller (right)"));
@@ -94,7 +101,7 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
 
     private void ReleaseObject()
     {
-
+        if (Menu.teaching) selfTeaching.increaseCounter();
         if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;

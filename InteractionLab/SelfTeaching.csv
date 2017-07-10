@@ -1,0 +1,41 @@
+0;Press Menu Button to\n open controller menu.;5;-1;60
+1;Press START to begin\n the Learning Process.;3;-1;60
+3;Press SELECT GRAB Button;3;-1;30
+4; . ;3;0;30
+5;Touch the target object\n with the controller. \n Press and hold the trigger;1;-1;60
+6; Hold trigger and move object \n to target area.\n Drop trigger to release \n the object.;1;-1;120
+7;Press Menu Button to \n open controller menu.;5;-1;60
+8;Press USE SNAP to \n enable the snapping mode.;3;-1;60
+9;Press Menu Button to \n close controller menu.;5;-1;60
+10;Touch the target Object \n with the controller. \n Press and hold the trigger. \n The object will now snap \n to the controller.;1;-1;120
+11;Move object to target \n while holding trigger \n Drop trigger to release \n the object;1;-1;120
+12;Press Menu Button to\n open controller menu;5;-1;60
+13;Press USE SNAP to \n disable the snapping mode;3;-1;60
+14;Press SELECT GRAB Button;3;-1;30
+15;. ;3;1;30
+16;Select the target Object \n without touching it. \n Press and hold the trigger. \n when the controller is nearby.;1;-1;90
+17;Move object to target \n while holding trigger \n Drop trigger to \n  release the object.;1;-1;120
+18;Press Menu Button to \n open controller menu.;5;-1;60
+19;Press USE SNAP to enable \n the snapping mode.;3;-1;60
+20;Press Menu Button to \n  close controller menu.;5;-1;60
+21;Select the target Object \n  without touching it. \n Press and hold the trigger \n when the controller is nearby. \n The object will now snap \n to the controller.;1;-1;120
+22;Move object to target \n while holding trigger. \n Drop trigger to \n release the object.;1;-1;60
+23;Press Menu Button to \n open controller menu.;5;-1;60
+24;Press USE SNAP to \n disable the snapping mode.;3;-1;60
+25;Press the SELECT GRAB Button.;3;-1;30
+26;.;3;2;30
+27;Touch the target object \n with the wand. \n Press and hold the trigger.;1;-1;90
+28;Move object to target \n while holding trigger. \n Drop trigger to release \n the object.;1;-1;90
+29;Press Menu Button to \n open controller menu.;5;-1;60
+30;Press SELECT GRAB Button.;3;-1;30
+31;.;3;3;30
+32;The cursor is green \n if the object is selectable. \n The length of the ray \n will fit automatically. \n Point with ray \n on the target object. \n  Press and hold \n the trigger.;1;-1;180
+33;Move object to target \n while holding trigger. \n Drop trigger to \n release the object.;1;-1;90
+34;Press Menu Button to \n open controller menu.;5;-1;60
+35;Press SELECT GRAB Button.;3;-1;30
+36;.;3;4;30
+37;Press on top/buttom of \n touchpad  to \n extend/shorten ray.\n Touch with ray \n on the target object. \n  Press and hold \n the trigger.;3;-1;150
+40;Move object to target \n while holding trigger. \n Adjust the ray length \n with the touchpad,\n if affordable. \n Drop trigger to \n release the object.;1;-1;150
+29;Press Menu Button to \n open controller menu.;5;-1;60
+41;Press SHOW TIPS to \n repeat the complete \n teaching procedure. \n Or choose specific methods \n to train a reliable use. \n  Press STOP to begin \n the actual study,\n  if you feel comfortable \n with every method.;3;-1;200
+42;Walk on the appearing \n red area to switch to \n the study scene. \n It is a supermarket!;3;-1;90

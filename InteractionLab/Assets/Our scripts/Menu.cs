@@ -42,27 +42,7 @@ public class Menu : MonoBehaviour
     private TargetTest tTest;
     private LearningTargetTest learningtTest;
     public enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
-    enum CLOSEMethod { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD };
-    enum FarMethod { FAR_RAYCAST, FAR_INDIRECT_RAYD };
-
-
-    private int wrapCLoseToMethod(int close)
-    {
-        int wrap = -1;
-        switch (close)
-        {
-            case (int)FarMethod.FAR_RAYCAST:
-                wrap = (int)Method.FAR_RAYCAST;
-                break;
-            case (int)FarMethod.FAR_INDIRECT_RAYD:
-                wrap = (int)Method.FAR_INDIRECT_RAY;
-                break;
-            default:
-                break;
-
-        }
-        return wrap;
-    }
+    public Method choosenInteraction;
 
 
     // Use this for initialization
@@ -86,7 +66,7 @@ public class Menu : MonoBehaviour
         GetComponent<VRTK_ControllerEvents>().ButtonTwoReleased += new ControllerInteractionEventHandler(DoButtonTwoReleased);
 
         teaching = true;
-        snap = true;
+        snap = false;
         showingTask = true;
         menuVisible = false;
         activateSwitchRoom = false;
@@ -173,6 +153,7 @@ public class Menu : MonoBehaviour
             menu2.gameObject.SetActive(false);
             menuVisible = !menuVisible;
             menu1.gameObject.SetActive(menuVisible);
+            if (teaching) selfTeaching.increaseCounter();
         }
     }
 
@@ -190,11 +171,10 @@ public class Menu : MonoBehaviour
 
     public void activateNearSimple()
     {
-        if (teaching) selfTeaching.increaseCounter();
         disableScripts();
-        //RaycastingMethode.deleteRay();
-        //choosenInteraction = GrabMethods.NEAR_SIMPLE;
+        choosenInteraction = Method.CLOSE_SIMPLE;
         scriptNearSimple.enabled = true;
+        selfTeaching.showTarget(true);
         if (isLearnRoom)
         {
             learningtTest.getMeasurements().StopTimeMeasure(learningtTest.getMethodID());
@@ -205,6 +185,7 @@ public class Menu : MonoBehaviour
         {
             tTest.setMethodID((int)Method.CLOSE_SIMPLE);
         }
+        if (teaching) selfTeaching.setCounter(3); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
     }
 
@@ -215,7 +196,7 @@ public class Menu : MonoBehaviour
         scriptAllRays.enabled = true;
         AllRaycastMethods.caseRay = (int)Method.CLOSE_ROD;
         AllRaycastMethods.ActivateRay();
-        //choosenInteraction = Method.CLOSE_ROD;
+        choosenInteraction = Method.CLOSE_ROD;
         if (isLearnRoom)
         {
             learningtTest.getMeasurements().StopTimeMeasure(learningtTest.getMethodID());
@@ -226,6 +207,7 @@ public class Menu : MonoBehaviour
         {
             tTest.setMethodID((int)Method.CLOSE_ROD);
         }
+        if (teaching) selfTeaching.setCounter(25); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
     }
 
@@ -233,7 +215,7 @@ public class Menu : MonoBehaviour
     {
         disableScripts();
         scriptNearDist.enabled = true;
-        //choosenInteraction = Method.CLOSE_DIST;
+        choosenInteraction = Method.CLOSE_DIST;
         if (isLearnRoom)
         {
             learningtTest.getMeasurements().StopTimeMeasure(learningtTest.getMethodID());
@@ -244,14 +226,15 @@ public class Menu : MonoBehaviour
         {
             tTest.setMethodID((int)Method.CLOSE_DIST);
         }
+        if (teaching) selfTeaching.setCounter(14); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
     }
 
     public void activateFarController()
     {
-        if (teaching) selfTeaching.increaseCounter();
+        //if (teaching) selfTeaching.increaseCounter();
         disableScripts();
-        //choosenInteraction = GrabMethods.FAR_CONTROLLER;
+        choosenInteraction = Method.FAR_RAYCAST;
         scriptAllRays.enabled = true;
         AllRaycastMethods.caseRay = (int)Method.FAR_RAYCAST;
         AllRaycastMethods.ActivateRay();
@@ -265,17 +248,15 @@ public class Menu : MonoBehaviour
         {
             tTest.setMethodID((int)Method.FAR_RAYCAST);
         }
+        if (teaching) selfTeaching.setCounter(30); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
     }
 
-    // in Indirect Method umbauen
+
     public void activateFarIndirect()
     {
-      
         disableScripts();
-   
-        // IndirectRaycast.ActivateRay();
-        //choosenInteraction = Method.FAR_INDIRECT_RAY;
+        choosenInteraction = Method.FAR_INDIRECT_RAY;
         scriptAllRays.enabled = true;
         AllRaycastMethods.caseRay = (int)Method.FAR_INDIRECT_RAY;
         AllRaycastMethods.ActivateRay();
@@ -289,15 +270,10 @@ public class Menu : MonoBehaviour
         {
             tTest.setMethodID((int)Method.FAR_INDIRECT_RAY);
         }
+        if (teaching) selfTeaching.setCounter(35); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
-
     }
 
-    // entfernen
-    public void activateFarGOGO()
-    {
-        //choosenInteraction = GrabMethods.FAR_GOGO;
-    }
 
     public void enableTeaching()
     {
@@ -333,14 +309,19 @@ public class Menu : MonoBehaviour
         if (snap)
         {
             menu1.buttons[1].ButtonIcon = ONSnappingSprite;
-            tTest.getMeasurements().useSnapping(1);
+            if (!isLearnRoom) tTest.getMeasurements().useSnapping(1);
         }
         else
         {
             menu1.buttons[1].ButtonIcon = OFFSnappingSprite;
-            tTest.getMeasurements().useSnapping(0);
+            if(!isLearnRoom)tTest.getMeasurements().useSnapping(0);
         }
         menu1.RegenerateButtons();
+
+        if (teaching) selfTeaching.increaseCounter();
+
+        if (choosenInteraction == Method.CLOSE_SIMPLE) scriptNearSimple.setObjectSnapping(snap);
+        if (choosenInteraction == Method.CLOSE_DIST) scriptNearDist.setObjectSnapping(snap);
     }
 
     public void startMesure()
@@ -365,16 +346,28 @@ public class Menu : MonoBehaviour
     }
 
 
-    public void stopLearning()
+    public void stopMeasure()
     {
         if (isLearnRoom)
         {
+            selfTeaching.toggleTeaching(true);
+            selfTeaching.setCounter(40);
             learningtTest.getMeasurements().stopAllTimeMeasures();
             long[] data = learningtTest.getMeasurements().packMeasurements();
             WriteMeasureFile wmf = new WriteMeasureFile();
             wmf.addLearningData2CSVFile(data);
         }
+        else {
+            long[] data = tTest.getMeasurements().packMeasurements();
+            WriteMeasureFile wmf = new WriteMeasureFile();
+            wmf.addData2CSVFile(tTest.task,tTest.method,data);
 
+        }
+        selfTeaching.setCounter(39);
+        toggleMenue();
+
+        switchScene.SetActive(true);
+        switchScene.GetComponent<BoxCollider>().isTrigger = true;
     }
 
     public void enableShowingTask()

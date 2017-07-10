@@ -64,12 +64,17 @@ public class ControllerGrabObject : MonoBehaviour
     private void GrabObject()
     {
         selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
-        if (Menu.teaching) selfTeaching.setCounter(8);
+        if (Menu.teaching)
+        {
+            //selfTeaching.increaseCounter();
+            selfTeaching.showArea(true);
+        }
 
         objectInHand = collidingObject;
 
         if (!snapObject)
         {
+            if (Menu.teaching) selfTeaching.setCounter(5);
             Debug.Log("no snapping " + snapObject);
             var joint = AddFixedJoint();
             joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
@@ -77,6 +82,7 @@ public class ControllerGrabObject : MonoBehaviour
 
         else if(snapObject)
         {
+            if (Menu.teaching) selfTeaching.setCounter(10);
             Debug.Log("snapping " + snapObject);
           
            var joint = createJoint(GameObject.Find("Controller (right)"));
@@ -95,8 +101,14 @@ public class ControllerGrabObject : MonoBehaviour
 
     private void ReleaseObject()
     {
+        if (Menu.teaching)
+        {
+            selfTeaching.increaseCounter();
+            selfTeaching.showArea(false);
+            selfTeaching.showTarget(false);
+        }
 
-        if (GetComponent<FixedJoint>())
+            if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());

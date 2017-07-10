@@ -75,9 +75,9 @@ public class TargetTest : MonoBehaviour
                 m.isSucessful(1);
                 Debug.Log("stop PosTIme ");
                 targetArea.GetComponent<MeshRenderer>().material = material;
-                long[] data = m.packMeasurements();
-                WriteMeasureFile wmf = new WriteMeasureFile();
-                wmf.addData2CSVFile((int)task,(int) method, data);
+                //long[] data = m.packMeasurements();
+                //WriteMeasureFile wmf = new WriteMeasureFile();
+                //wmf.addData2CSVFile((int)task,(int) method, data);
 
             }
 

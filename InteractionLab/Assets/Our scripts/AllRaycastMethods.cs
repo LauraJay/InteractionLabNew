@@ -41,6 +41,7 @@ public class AllRaycastMethods : MonoBehaviour
     Color releaseColor = new Color(0, 0, 0, 1);
     Color grabbingColor = new Color(0, 255, 0, 1);
 
+    private SelfTeaching selfTeaching;
 
     private SteamVR_Controller.Device Controller
     {
@@ -82,6 +83,8 @@ public class AllRaycastMethods : MonoBehaviour
     // Use this for initialization
     void OldStart()
     {
+        selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
+        
         triggerState = false;
         //pressedController = new GameObject();
         //pressedController.name = "pressedController";
@@ -231,6 +234,8 @@ public class AllRaycastMethods : MonoBehaviour
 
     void GrabObject()
     {
+        if (Menu.teaching) selfTeaching.increaseCounter();
+
         temp = hitObject.transform.gameObject;
         temp.transform.SetParent(cursor.transform);
         temp.transform.GetComponent<Rigidbody>().isKinematic = true;
@@ -267,7 +272,17 @@ public class AllRaycastMethods : MonoBehaviour
     {
         if (temp != null)
         {
-            Debug.Log("Name of Release Object: " + temp.name);
+            if (Menu.teaching)
+            {
+
+                /*if (caseRay == (int)Menu.Method.FAR_INDIRECT_RAY)
+                {
+                    selfTeaching.setCounter(38);
+                }
+                else */selfTeaching.increaseCounter();
+            }
+
+                Debug.Log("Name of Release Object: " + temp.name);
             temp.transform.SetParent(null);
             Vector3 pos = temp.transform.position;
             Quaternion rot = temp.transform.rotation;
@@ -305,6 +320,7 @@ public class AllRaycastMethods : MonoBehaviour
     {
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
         {
+            int anzahl = 0;
             Vector2 touchpad = (Controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
             //print("Pressing Touchpad");
 
@@ -313,6 +329,10 @@ public class AllRaycastMethods : MonoBehaviour
                 if (lengthIndirect < 10000 * step)
                 {
                     lengthIndirect += step;
+                }
+                if (Menu.teaching)
+                {
+                    selfTeaching.setCounter(36);
                 }
                 // print("Moving Up");
 
@@ -323,6 +343,10 @@ public class AllRaycastMethods : MonoBehaviour
                 if (lengthIndirect > step)
                 {
                     lengthIndirect -= step;
+                }
+                if (Menu.teaching)
+                {
+                    selfTeaching.setCounter(36);
                 }
                 // print("Moving Down");
             }

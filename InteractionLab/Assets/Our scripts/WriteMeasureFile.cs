@@ -6,6 +6,10 @@ using System.Text;
 
 public class WriteMeasureFile {
     private string path;
+    private List<string> tips = new List<string>();
+    private List<int> ButtonIds = new List<int>();
+    private List<int> IsTexture = new List<int>();
+    private List<int> heights = new List<int>();
     FileStream fs;
     enum ROOM { learn, supermarket1_1, supermarket1_2, supermarket1_3, supermarket2_1, supermarket2_2, supermarket2_3, supermarket2_4 };
     enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
@@ -90,7 +94,9 @@ public class WriteMeasureFile {
                 fs.Close();
     }
 
-    public bool addLearningData2CSVFile(long[] data) {
+
+    public bool addLearningData2CSVFile(long[] data)
+    {
         if (data.Length != 6) return false;
 
         path += "Learning.csv";
@@ -132,11 +138,12 @@ public class WriteMeasureFile {
 
     }
     // Data has to be structured as long array like: [0] testID , [1] grabTime, [2] posTime, [3] errorRate, [4]WrongSelectedRate , [5] Sucessful{0,1}, [6] Snapping {0,1}
-    public bool addData2CSVFile(int room, int method, long[] data) {
+    public bool addData2CSVFile(int room, int method, long[] data)
+    {
         if (data.Length != 7) return false;
         initCSVFile(room, method);
         string line = string.Format("{0},{1},{2},{3},{4},{5},{6}", data[0].ToString(), data[1].ToString(), data[2].ToString(), data[3].ToString(), data[4].ToString(), data[5].ToString(), data[6].ToString());
-       
+
         using (var file = File.Open(path, FileMode.Append, FileAccess.Write))
         {
             using (var writer = new StreamWriter(file))
@@ -151,11 +158,52 @@ public class WriteMeasureFile {
 
         return true;
     }
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
-   
+    // Use this for initialization
+    public void initSelfteaching()
+    {
+        string line;
+        using (System.IO.StreamReader file = new System.IO.StreamReader(@"SelfTeaching.csv"))
+        {
+            if (file != null)
+            {
+                while ((line = file.ReadLine()) != null)
+                {
+                    string[] values = line.Split(';');
+
+                    tips.Add(values[1]);
+                    ButtonIds.Add(System.Convert.ToInt32(values[2]));
+                    IsTexture.Add(System.Convert.ToInt32(values[3]));
+                    heights.Add(System.Convert.ToInt32(values[4]));
+                }
+                file.Close();
+            }
+        }
+
+        //for (int i = 0; i < selfteaching.Count; i++)
+        //{
+        //    Debug.Log("Zeile " + i + ": "+tips[i]);
+
+        //}
+
+    }
+
+    public List<string> getTips()
+    {
+        return tips;
+    }
+    public List<int> getButtonIds()
+    {
+        return ButtonIds;
+    }
+    public List<int> getHeights()
+    {
+        return heights;
+    }
+    public List<int> getIsTextures()
+    {
+        return IsTexture;
+    }
+
 
 }

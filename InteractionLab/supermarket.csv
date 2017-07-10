@@ -1,0 +1,16 @@
+43;Welcome to our supermarket! \n In the following 15 minutes you are giving several tasks. \n Please read the following introductions in detail  \n Skip through the tips with the trigger.;3;-1;120
+44;Read the complete appearing task;3;-1;30
+45;Press START when you are ready to beginn the task  \n The measurement will start immediately;3;-1;60
+46;Now select the method which seems to be most adequate for this task;3;-1;30
+47;Grab the target object and place it on the target area;1;-1;30
+48;Press STOP to finish the task  \n The measurements will be stopped ;3;-1;60
+49;Walk on to the appearing red area to continue with the next task;3;-1;30
+50;Congratulations! You have finished the first part. Please skip through the following introductions with the trigger.;3;-1;30
+51;You are now going to do the task with each method in random order. ;3;-1;30
+52;Hence, you don't have to select a method.;3;-1;30
+53;Read the complete appearing task;3;-1;30
+54;Press START when you are ready to beginn the task  \n The measurement will start immediately;3;-1;60
+55;Now select the method which seems to be most adequate for this task;3;-1;30
+56;Grab the target object and place it on the target area;1;-1;30
+57;Press STOP to finish the task  \n The measurements will be stopped ;3;-1;60
+58;Walk on to the appearing red area to continue with the next task;3;-1;30

@@ -48,6 +48,7 @@ public class SwitchRoom : MonoBehaviour {
         
         if (currentRoom == room.learn)
         {
+            // Reload or reset all Scripts
             SceneManager.LoadScene((int)room.supermarket1_1, LoadSceneMode.Single);
             Debug.Log("load supermarkt1_1");
         }
