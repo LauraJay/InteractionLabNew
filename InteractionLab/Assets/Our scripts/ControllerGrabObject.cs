@@ -14,6 +14,10 @@ public class ControllerGrabObject : MonoBehaviour
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
+    private Color saveColor;
+    private GameObject resetColor;
+    private bool canChangeColor = true;
+
     private SelfTeaching selfTeaching;
 
     public void setObjectSnapping(bool snap)
@@ -121,6 +125,22 @@ public class ControllerGrabObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
+        {
+            Renderer rend = collidingObject.GetComponent<Renderer>();
+            saveColor = rend.material.color;
+            rend.material.color = Color.green;
+            canChangeColor = false;
+            resetColor = collidingObject;
+        }
+        else if (!canChangeColor && collidingObject == null)
+        {
+            Renderer rend = resetColor.GetComponent<Renderer>();
+            rend.material.color = saveColor;
+            canChangeColor = true;
+        }
+
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObject && collidingObject.transform.tag == ("Moveable"))

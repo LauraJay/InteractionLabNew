@@ -48,13 +48,7 @@ public class showTasks : MonoBehaviour
     void Update()
     {
         currentRoom = SceneManager.GetActiveScene().buildIndex;
-        if (shown)
-        {
-            textTask = buttonTextsTask[currentRoom];
-            tasks_tips.containerSize = setHeight(buttonHeightsTask[currentRoom]);
-            controller_tips.UpdateText(VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip, textTask);
-            controller_tips.ToggleTips(shown, VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip);
-        }
+
 
         if (currentRoom <= 3)
         {
@@ -62,6 +56,28 @@ public class showTasks : MonoBehaviour
             infoBoard.containerSize = setHeight(buttonHeightsBoard[0]);
             infoBoard.UpdateText(textBoard);
 
+            if (shown)
+            {
+                textTask = buttonTextsTask[currentRoom];
+                tasks_tips.containerSize = setHeight(buttonHeightsTask[currentRoom]);
+                controller_tips.UpdateText(VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip, textTask);
+                controller_tips.ToggleTips(shown, VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip);
+            }
+        }
+
+        else
+        {
+            if (shown)
+            {
+                textTask = buttonTextsTask[4];
+                tasks_tips.containerSize = setHeight(buttonHeightsTask[4]);
+                controller_tips.UpdateText(VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip, textTask);
+                controller_tips.ToggleTips(shown, VRTK_ControllerTooltips.TooltipButtons.ButtonOneTooltip);
+            }
+
+            textBoard = buttonTextsBoard[currentRoom];
+            infoBoard.containerSize = setHeight(buttonHeightsBoard[currentRoom]);
+            infoBoard.UpdateText(textBoard);
         }
     }
 

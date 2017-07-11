@@ -6,7 +6,7 @@ using VRTK;
 
 public class Menu : MonoBehaviour
 {
-    
+
     //scripts for activating grabbing methods
     private ControllerGrabObject scriptNearSimple;
     private ControllerGrabLightlyDistance scriptNearDist;
@@ -95,7 +95,7 @@ public class Menu : MonoBehaviour
             scriptAllRays.enabled = true;
             scriptAllRays.setCounter(0);
         }
-        
+
         counter = 0;
     }
 
@@ -109,6 +109,26 @@ public class Menu : MonoBehaviour
             AllRaycastMethods.deleteRay();
             scriptAllRays.enabled = false;
             counter++;
+
+            currentRoom = SceneManager.GetActiveScene().buildIndex;
+            switch (currentRoom)
+            {
+                case 4:
+                    activateNearSimple();
+                    break;
+                case 5:
+                    activateFarIndirect();
+                    break;
+                case 6:
+                    activateNearRod();
+                    break;
+                case 7:
+                    activateNearDist();
+                    break;
+                case 8:
+                    activateFarController();
+                    break;
+            }
         }
     }
 
@@ -184,9 +204,10 @@ public class Menu : MonoBehaviour
         disableScripts();
         choosenInteraction = Method.CLOSE_SIMPLE;
         scriptNearSimple.enabled = true;
-        selfTeaching.showTarget(true);
+
         if (isLearnRoom)
         {
+            selfTeaching.showTarget(true);
             learningtTest.getMeasurements().StopTimeMeasure(learningtTest.getMethodID());
             learningtTest.setMethodID((int)Method.CLOSE_SIMPLE);
             learningtTest.getMeasurements().startTimeMeasure((int)Method.CLOSE_SIMPLE);
@@ -327,7 +348,7 @@ public class Menu : MonoBehaviour
         else
         {
             menu1.buttons[1].ButtonIcon = OFFSnappingSprite;
-            if(!isLearnRoom)tTest.getMeasurements().useSnapping(0);
+            if (!isLearnRoom) tTest.getMeasurements().useSnapping(0);
         }
         menu1.RegenerateButtons();
 
@@ -362,28 +383,32 @@ public class Menu : MonoBehaviour
     public void stopMeasure()
     {
         if (isLearnRoom)
-        { 
+        {
             selfTeaching.toggleTeaching(true);
             learningtTest.getMeasurements().stopAllTimeMeasures();
             long[] data = learningtTest.getMeasurements().packMeasurements();
             WriteMeasureFile wmf = new WriteMeasureFile();
             wmf.addLearningData2CSVFile(data);
         }
-        else {
+        else
+        {
             long[] data = tTest.getMeasurements().packMeasurements();
             WriteMeasureFile wmf = new WriteMeasureFile();
-            wmf.addData2CSVFile(tTest.task,tTest.method,data);
+            wmf.addData2CSVFile(tTest.task, tTest.method, data);
 
         }
 
-        if(teaching) selfTeaching.setCounter(39);
+        if (teaching) selfTeaching.setCounter(39);
         toggleMenue();
 
         disableScripts();
-        teaching = false; 
+        teaching = false;
+        if (currentRoom != 8)
+        {
+            switchScene.SetActive(true);
+            switchScene.GetComponent<BoxCollider>().isTrigger = true;
+        }
 
-        switchScene.SetActive(true);
-        switchScene.GetComponent<BoxCollider>().isTrigger = true;
     }
 
     public void enableShowingTask()
