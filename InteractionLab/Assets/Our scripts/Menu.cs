@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VRTK;
 
 public class Menu : MonoBehaviour
@@ -17,10 +18,12 @@ public class Menu : MonoBehaviour
     public bool menuVisible;
     public bool activateSwitchRoom;
     public bool isLearnRoom = false;
+    private int currentRoom;
 
     public static bool RodIsEnabled = false;
 
     private SelfTeaching selfTeaching;
+    private showTasks showTasks;
 
     //new textures for showing on or off
     public Sprite ONTeachSprite;
@@ -35,7 +38,7 @@ public class Menu : MonoBehaviour
     private RadialMenu menu0;
     private RadialMenu menu1;
     private RadialMenu menu2;
-    private int counter = 0;
+    private int counter;
 
     private GameObject switchScene;
 
@@ -78,15 +81,22 @@ public class Menu : MonoBehaviour
         switchScene.SetActive(false);
         if (isLearnRoom)
         {
+            teaching = true;
             learningtTest = GameObject.Find("TargetObject").GetComponent<LearningTargetTest>();
-
+            selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
         }
         else
         {
-
+            teaching = false;
             tTest = GameObject.Find("TargetObject").GetComponent<TargetTest>();
+            showTasks = GameObject.Find("RightController").GetComponent<showTasks>();
+
+            scriptAllRays = GameObject.Find("Controller (right)").GetComponent<AllRaycastMethods>();
+            scriptAllRays.enabled = true;
+            scriptAllRays.setCounter(0);
         }
-        selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
+        
+        counter = 0;
     }
 
     // Update is called once per frame
@@ -297,7 +307,10 @@ public class Menu : MonoBehaviour
 
     public void reset()
     {
-        //Reload scene? 
+        //Reload scene
+        currentRoom = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentRoom, LoadSceneMode.Single);
+
         tTest.getMeasurements().isSucessful(0);
 
     }
@@ -349,9 +362,8 @@ public class Menu : MonoBehaviour
     public void stopMeasure()
     {
         if (isLearnRoom)
-        {
+        { 
             selfTeaching.toggleTeaching(true);
-            selfTeaching.setCounter(40);
             learningtTest.getMeasurements().stopAllTimeMeasures();
             long[] data = learningtTest.getMeasurements().packMeasurements();
             WriteMeasureFile wmf = new WriteMeasureFile();
@@ -363,8 +375,12 @@ public class Menu : MonoBehaviour
             wmf.addData2CSVFile(tTest.task,tTest.method,data);
 
         }
-        selfTeaching.setCounter(39);
+
+        if(teaching) selfTeaching.setCounter(39);
         toggleMenue();
+
+        disableScripts();
+        teaching = false; 
 
         switchScene.SetActive(true);
         switchScene.GetComponent<BoxCollider>().isTrigger = true;
@@ -383,6 +399,7 @@ public class Menu : MonoBehaviour
             menu1.buttons[2].ButtonIcon = OFFTaskSprite;
         }
         menu1.RegenerateButtons();
+        showTasks.toggleTask(showingTask);
     }
 
     public void switchRoom()
@@ -391,4 +408,46 @@ public class Menu : MonoBehaviour
         switchScene.SetActive(true);
     }
 
+
+    private List<Method> intialiseMethodList()
+    {
+        List<Method> init = new List<Method>();
+        for (int i = 0; i < (int)Method.FAR_INDIRECT_RAY; i++)
+        {
+            init.Add((Method)i);
+        }
+        return init;
+    }
+
+    private List<Method> intialiseCloseList()
+    {
+        List<Method> init = new List<Method>();
+        for (int i = (int)Method.CLOSE_SIMPLE; i < (int)Method.CLOSE_ROD; i++)
+        {
+            init.Add((Method)i);
+        }
+        return init;
+    }
+    private List<Method> intialiseFarList()
+    {
+        List<Method> init = new List<Method>();
+        for (int i = (int)Method.FAR_RAYCAST; i < (int)Method.FAR_INDIRECT_RAY; i++)
+        {
+            init.Add((Method)i);
+        }
+        return init;
+    }
+
+    private List<Method> radomizeMethodCall(List<Method> list)
+    {
+        System.Random r = new System.Random();
+        List<Method> randomized = new List<Method>();
+        while (list.Count > 0)
+        {
+            int n = r.Next(list.Count);
+            randomized.Add(list[n]);
+            list.RemoveAt(n);
+        }
+        return randomized;
+    }
 }

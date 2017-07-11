@@ -149,6 +149,8 @@ public class SelfTeaching : MonoBehaviour
 
     private void getSelfTeaching()
     {
+        if (counter > 40) counter = 40;
+
         if (isTexture[counter] == -1)
         {
             text = buttonTexts[counter];

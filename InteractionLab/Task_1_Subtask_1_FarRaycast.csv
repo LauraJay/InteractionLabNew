@@ -23,3 +23,4 @@ ID,GrabTime,PosTime,errorRate,WrongSelectedRate,Sucessful,Snapping
 1,45270,10553,1,-1,1,0
 1,18240,1583,0,-1,1,0
 1,4734,8439,2,-1,1,0
+1,0,0,-1,-1,0,0

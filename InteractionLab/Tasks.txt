@@ -1,0 +1,8 @@
+0:
+1;Welcome to our supermarket! \n In the following 15 minutes you are giving several tasks. \n Please read the following introductions in detail  \n Skip through the tips with the trigger.;120
+2;Read the complete appearing task;30
+3;Press START when you are ready to beginn the task  \n The measurement will start immediately;60
+4;Now select the method which seems to be most adequate for this task;30
+5;Grab the target object and place it on the target area;30
+6;Press STOP to finish the task  \n The measurements will be stopped ;60
+7;Walk on to the appearing red area to continue with the next task;30

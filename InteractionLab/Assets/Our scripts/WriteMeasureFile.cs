@@ -4,7 +4,8 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 
-public class WriteMeasureFile {
+public class WriteMeasureFile
+{
     private string path;
     private List<string> tips = new List<string>();
     private List<int> ButtonIds = new List<int>();
@@ -15,10 +16,12 @@ public class WriteMeasureFile {
     enum Method { CLOSE_SIMPLE, CLOSE_DIST, CLOSE_ROD, FAR_RAYCAST, FAR_INDIRECT_RAY };
 
     // Use this for initialization
-    public WriteMeasureFile() {
+    public WriteMeasureFile()
+    {
     }
-    private void initCSVFile(int room, int method) {
-        
+    private void initCSVFile(int room, int method)
+    {
+
         switch (room)
         {
             case (int)ROOM.learn:
@@ -56,8 +59,8 @@ public class WriteMeasureFile {
             case (int)Method.CLOSE_SIMPLE:
                 path += "_CLoseSimple.csv";
                 break;
-                case(int)Method.CLOSE_DIST:
-                     path += "_CLoseDist.csv";
+            case (int)Method.CLOSE_DIST:
+                path += "_CLoseDist.csv";
                 break;
             case (int)Method.CLOSE_ROD:
                 path += "_CLoseRod.csv";
@@ -75,23 +78,24 @@ public class WriteMeasureFile {
 
 
         fs = new FileStream(path, FileMode.OpenOrCreate);
-        if (fs.Length == 0){
-        try
+        if (fs.Length == 0)
         {
+            try
+            {
                 using (StreamWriter writer = new StreamWriter(fs, Encoding.Default))
                 {
                     writer.WriteLine("ID,GrabTime,PosTime,errorRate,WrongSelectedRate,Sucessful,Snapping");
                     writer.Close();
                 }
             }
-        finally
-        {
+            finally
+            {
                 if (fs != null)
                     fs.Dispose();
 
             }
-    }
-                fs.Close();
+        }
+        fs.Close();
     }
 
 
@@ -108,7 +112,7 @@ public class WriteMeasureFile {
             {
                 using (StreamWriter writer = new StreamWriter(fs, Encoding.Default))
                 {
-                    writer.WriteLine("ID, time Simple, time Distance, time Rod, time Raycast, time Indirect Ray");
+                    writer.WriteLine("ID, time Touch Grab, time Proxmitiy, time Wand Grab, time Raycast, time Extend Ray");
                     writer.Close();
                 }
             }
@@ -179,14 +183,46 @@ public class WriteMeasureFile {
                 file.Close();
             }
         }
-
-        //for (int i = 0; i < selfteaching.Count; i++)
-        //{
-        //    Debug.Log("Zeile " + i + ": "+tips[i]);
-
-        //}
-
     }
+
+    public void initTasks()
+    {
+        string line;
+        using (System.IO.StreamReader file = new System.IO.StreamReader(@"Tasks.csv"))
+        {
+            if (file != null)
+            {
+                while ((line = file.ReadLine()) != null)
+                {
+                    string[] values = line.Split(';');
+
+                    tips.Add(values[0]);
+                    heights.Add(System.Convert.ToInt32(values[1]));
+                }
+                file.Close();
+            }
+        }
+    }
+
+    public void initBoard()
+    {
+        string line;
+        using (System.IO.StreamReader file = new System.IO.StreamReader(@"supermarket_boards.csv"))
+        {
+            if (file != null)
+            {
+                while ((line = file.ReadLine()) != null)
+                {
+                    string[] values = line.Split(';');
+
+                    tips.Add(values[0]);
+                    heights.Add(System.Convert.ToInt32(values[1]));
+                }
+                file.Close();
+            }
+        }
+    }
+
 
     public List<string> getTips()
     {

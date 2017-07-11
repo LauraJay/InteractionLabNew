@@ -20,7 +20,7 @@ public class SwitchRoom : MonoBehaviour {
     private bool alreadyChanged;
 
     //CONS - Buildsettings
-    private enum room { learn, supermarket1_1, supermarket1_2, supermarket1_3, supermarket2_1, supermarket2_2, supermarket2_3, supermarket2_4 };
+    public enum room { learn, supermarket1_1, supermarket1_2, supermarket1_3, supermarket2_1, supermarket2_2, supermarket2_3, supermarket2_4 };
     private room currentRoom;
    // private int learning = 0;
     //private int supermarketAufg1 = 1;
@@ -42,20 +42,24 @@ public class SwitchRoom : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        currentScene = SceneManager.GetActiveScene();
-        currentRoom = (room) currentScene.buildIndex;
-        Debug.Log("ID: " + currentRoom);
-        
-        if (currentRoom == room.learn)
+       // if( GameObject.Find("Controller (right)").transform.GetComponent<BoxCollider>())
+       if(other.gameObject.name == "Controller (right)")
         {
-            // Reload or reset all Scripts
-            SceneManager.LoadScene((int)room.supermarket1_1, LoadSceneMode.Single);
-            Debug.Log("load supermarkt1_1");
-        }
-        if (currentRoom == room.supermarket1_1)
-        {
-            SceneManager.LoadScene((int)room.supermarket1_2, LoadSceneMode.Single);
-            Debug.Log("load supermarkt1_2");
+            currentScene = SceneManager.GetActiveScene();
+            currentRoom = (room)currentScene.buildIndex;
+            Debug.Log("ID: " + currentRoom);
+
+            if (currentRoom == room.learn)
+            {
+                // Reload or reset all Scripts
+                SceneManager.LoadScene((int)room.supermarket1_1, LoadSceneMode.Single);
+                Debug.Log("load supermarkt1_1");
+            }
+            if (currentRoom == room.supermarket1_1)
+            {
+                SceneManager.LoadScene((int)room.supermarket1_2, LoadSceneMode.Single);
+                Debug.Log("load supermarkt1_2");
+            }
         }
     }
 

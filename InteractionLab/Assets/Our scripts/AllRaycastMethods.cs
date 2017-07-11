@@ -14,7 +14,7 @@ public class AllRaycastMethods : MonoBehaviour
     public float thickness = 0.004f;
     public AxisType facingAxis = AxisType.XAxis;
     public static float length = 100f;
-    public static float lengthIndirect = 5f;
+    public static float lengthIndirect = 3f;
     public bool showCursor = true;
     public RaycastHit hitObject;
     //private GameObject pressedController;
@@ -31,7 +31,7 @@ public class AllRaycastMethods : MonoBehaviour
 
     Vector3 cursorScale = new Vector3(0.05f, 0.05f, 0.05f);
     float contactDistance = 0f;
-    private static int counter = 0;
+    public static int counter = 0;
     static public Ray raycast;
     Transform contactTarget = null;
     float step = 0.01f;
@@ -177,11 +177,13 @@ public class AllRaycastMethods : MonoBehaviour
         switch (caseRay)
         {
             case (int)Menu.Method.FAR_RAYCAST:
-               rayHit = Physics.Raycast(raycast, out hitObject);
+                showCursor = true;
+                rayHit = Physics.Raycast(raycast, out hitObject);
                 beamLength = GetBeamLength(rayHit, hitObject);
                 SetPointerTransform(beamLength, thickness);
                 break;
             case (int)Menu.Method.FAR_INDIRECT_RAY:
+                showCursor = true;
                 rayHit = Physics.Raycast(raycast, out hitObject, lengthIndirect);
                 scaleRay();
                 SetPointerTransform(lengthIndirect, thickness); break;
@@ -313,14 +315,13 @@ public class AllRaycastMethods : MonoBehaviour
         cursor.GetComponent<MeshRenderer>().material = newMaterial;
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
         //length = 100.0f;
-        //lengthIndirect = 5.0f;
+        //lengthIndirect = 3.0f;
     }
 
     void scaleRay()
     {
         if (Controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
         {
-            int anzahl = 0;
             Vector2 touchpad = (Controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
             //print("Pressing Touchpad");
 
@@ -355,6 +356,10 @@ public class AllRaycastMethods : MonoBehaviour
         }
     }
 
+    public void setCounter(int number)
+    {
+        counter = number;
+    }
 }
 
 
