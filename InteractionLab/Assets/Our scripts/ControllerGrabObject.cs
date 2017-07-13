@@ -20,6 +20,9 @@ public class ControllerGrabObject : MonoBehaviour
 
     private SelfTeaching selfTeaching;
 
+    private TargetTest t;
+    public bool isLearningMode = false;
+
     public void setObjectSnapping(bool snap)
     {
         snapObject = snap;
@@ -92,7 +95,30 @@ public class ControllerGrabObject : MonoBehaviour
            var joint = createJoint(GameObject.Find("Controller (right)"));
             SetSnappedObjectPosition(collidingObject);
             joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
-        }   
+        }
+        string name = objectInHand.name;
+
+        if (!isLearningMode)
+        {
+            t = objectInHand.GetComponent<TargetTest>();
+            if (t != null)
+            {
+                if (name.Equals("TargetObject"))
+                {
+
+
+                    t.getMeasurements().StopGrabTimeMeasure();
+                    Debug.Log("stop grab time / start pos time");
+                    t.getMeasurements().incrementErrorRate();
+                    Debug.Log("increment Error Rate");
+                }
+
+                else
+                {
+                    t.getMeasurements().incrementWrongSelection();
+                }
+            }
+        }
     }
 
     private FixedJoint AddFixedJoint()

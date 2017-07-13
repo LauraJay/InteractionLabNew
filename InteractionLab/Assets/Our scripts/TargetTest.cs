@@ -12,7 +12,7 @@ public class TargetTest : MonoBehaviour
 
     public int task = 1;
     public int method = 3;
-    public int testId = 1;
+    public int testId = 3;
 
     public Material material;
 
@@ -72,13 +72,12 @@ public class TargetTest : MonoBehaviour
             if (m != null)
             {
                 m.StopPosTimeMeasure();
+                m.StopTimeMeasure(method);
+                m.setSucessfulMethod(method);
                 m.isSucessful(1);
                 Debug.Log("stop PosTIme ");
                 targetArea.GetComponent<MeshRenderer>().material = material;
-                //long[] data = m.packMeasurements();
-                //WriteMeasureFile wmf = new WriteMeasureFile();
-                //wmf.addData2CSVFile((int)task,(int) method, data);
-
+               
             }
 
         }

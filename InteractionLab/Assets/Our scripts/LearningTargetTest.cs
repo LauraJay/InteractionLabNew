@@ -12,7 +12,7 @@ public class LearningTargetTest : MonoBehaviour
 
     public int task = 1;
     public int method = 3;
-    public int testId = 1;
+    public int testId = 3;
 
     public Material material;
 

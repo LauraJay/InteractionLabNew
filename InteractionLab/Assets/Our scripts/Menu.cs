@@ -83,14 +83,15 @@ public class Menu : MonoBehaviour
         {
             teaching = true;
             learningtTest = GameObject.Find("TargetObject").GetComponent<LearningTargetTest>();
+            learningtTest.initMeasurements();
             selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
         }
         else
         {
             teaching = false;
             tTest = GameObject.Find("TargetObject").GetComponent<TargetTest>();
+            tTest.initMeasurements();
             showTasks = GameObject.Find("RightController").GetComponent<showTasks>();
-
             scriptAllRays = GameObject.Find("Controller (right)").GetComponent<AllRaycastMethods>();
             scriptAllRays.enabled = true;
             scriptAllRays.setCounter(0);
@@ -214,7 +215,9 @@ public class Menu : MonoBehaviour
         }
         else
         {
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             tTest.setMethodID((int)Method.CLOSE_SIMPLE);
+            tTest.getMeasurements().startTimeMeasure(tTest.method);
         }
         if (teaching) selfTeaching.setCounter(3); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
@@ -236,7 +239,9 @@ public class Menu : MonoBehaviour
         }
         else
         {
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             tTest.setMethodID((int)Method.CLOSE_ROD);
+            tTest.getMeasurements().startTimeMeasure(tTest.method);
         }
         if (teaching) selfTeaching.setCounter(25); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
@@ -255,7 +260,11 @@ public class Menu : MonoBehaviour
         }
         else
         {
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             tTest.setMethodID((int)Method.CLOSE_DIST);
+            tTest.getMeasurements().startTimeMeasure(tTest.method);
+
+
         }
         if (teaching) selfTeaching.setCounter(14); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
@@ -277,7 +286,11 @@ public class Menu : MonoBehaviour
         }
         else
         {
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             tTest.setMethodID((int)Method.FAR_RAYCAST);
+            tTest.getMeasurements().startTimeMeasure(tTest.method);
+
+
         }
         if (teaching) selfTeaching.setCounter(30); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
@@ -299,7 +312,10 @@ public class Menu : MonoBehaviour
         }
         else
         {
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             tTest.setMethodID((int)Method.FAR_INDIRECT_RAY);
+            tTest.getMeasurements().startTimeMeasure(tTest.method);
+
         }
         if (teaching) selfTeaching.setCounter(35); //COUNTER-1 gesetzt wegen toggel
         toggleMenue();
@@ -392,10 +408,18 @@ public class Menu : MonoBehaviour
         }
         else
         {
-            long[] data = tTest.getMeasurements().packMeasurements();
+            tTest.getMeasurements().StopTimeMeasure(tTest.method);
             WriteMeasureFile wmf = new WriteMeasureFile();
-            wmf.addData2CSVFile(tTest.task, tTest.method, data);
+            if (tTest.task > 3)
+            {
+                long[] data = tTest.getMeasurements().packConstraintedMethodMeasurements();
+                wmf.addContrainedMethodData2CSVFile(tTest.task, tTest.method, data);
+            }
+            else if (tTest.task > 0 && tTest.task <= 3) {
+                long[] data = tTest.getMeasurements().packSelfChoosedMethodMeasurements();
+                wmf.addChoosenMethodData2CSVFile(data, tTest.task);
 
+            }
         }
 
         if (teaching) selfTeaching.setCounter(39);

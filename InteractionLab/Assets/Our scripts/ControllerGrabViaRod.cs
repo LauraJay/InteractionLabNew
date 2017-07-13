@@ -25,7 +25,8 @@ public class ControllerGrabViaRod : MonoBehaviour
     private bool canChangeColor = true;
     private Color saveColor;
     private GameObject resetColor;
-
+    private TargetTest t;
+    public bool isLearningMode = false;
 
 
     protected Rigidbody controllerAttachPoint;
@@ -112,7 +113,30 @@ public class ControllerGrabViaRod : MonoBehaviour
 
         var joint = AddFixedJoint();
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-     
+        string name = objectInHand.name;
+
+        if (!isLearningMode)
+        {
+            t = objectInHand.GetComponent<TargetTest>();
+            if (t != null)
+            {
+                if (name.Equals("TargetObject"))
+                {
+
+
+                    t.getMeasurements().StopGrabTimeMeasure();
+                    Debug.Log("stop grab time / start pos time");
+                    t.getMeasurements().incrementErrorRate();
+                    Debug.Log("increment Error Rate");
+                }
+
+                else
+                {
+                    t.getMeasurements().incrementWrongSelection();
+                }
+            }
+        }
+
     }
 
     private FixedJoint AddFixedJoint()
