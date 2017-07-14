@@ -111,25 +111,25 @@ public class Menu : MonoBehaviour
             scriptAllRays.enabled = false;
             counter++;
 
-            currentRoom = SceneManager.GetActiveScene().buildIndex;
-            switch (currentRoom)
-            {
-                case 4:
-                    activateNearSimple();
-                    break;
-                case 5:
-                    activateFarIndirect();
-                    break;
-                case 6:
-                    activateNearRod();
-                    break;
-                case 7:
-                    activateNearDist();
-                    break;
-                case 8:
-                    activateFarController();
-                    break;
-            }
+            //currentRoom = SceneManager.GetActiveScene().buildIndex;
+            //switch (currentRoom)
+            //{
+            //    case 4:
+            //        activateNearSimple();
+            //        break;
+            //    case 5:
+            //        activateFarIndirect();
+            //        break;
+            //    case 6:
+            //        activateNearRod();
+            //        break;
+            //    case 7:
+            //        activateNearDist();
+            //        break;
+            //    case 8:
+            //        activateFarController();
+            //        break;
+            //}
         }
     }
 
@@ -392,6 +392,26 @@ public class Menu : MonoBehaviour
             tTest.initMeasurements();
             tTest.getMeasurements().startGrabTimeMeasure();
             Debug.Log("Start Grab measure");
+        }
+
+        currentRoom = SceneManager.GetActiveScene().buildIndex;
+        switch (currentRoom)
+        {
+            case 4:
+                activateNearSimple();
+                break;
+            case 5:
+                activateNearRod();
+                break;
+            case 6:
+                activateFarIndirect();
+                break;
+            case 7:
+                activateNearDist();
+                break;
+            case 8:
+                activateFarController();
+                break;
         }
     }
 
