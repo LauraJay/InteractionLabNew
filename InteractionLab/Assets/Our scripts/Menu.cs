@@ -421,6 +421,7 @@ public class Menu : MonoBehaviour
         if (isLearnRoom)
         {
             selfTeaching.toggleTeaching(true);
+            selfTeaching.setCounter(40);
             learningtTest.getMeasurements().stopAllTimeMeasures();
             long[] data = learningtTest.getMeasurements().packMeasurements();
             WriteMeasureFile wmf = new WriteMeasureFile();
@@ -442,7 +443,7 @@ public class Menu : MonoBehaviour
             }
         }
 
-        if (teaching) selfTeaching.setCounter(39);
+        //if (teaching) 
         toggleMenue();
 
         disableScripts();
