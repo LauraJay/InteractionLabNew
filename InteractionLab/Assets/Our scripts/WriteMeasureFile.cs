@@ -45,28 +45,6 @@ public class WriteMeasureFile
 
         }
 
-        //switch (method)
-        //{
-        //    case (int)Method.CLOSE_SIMPLE:
-        //        path += "_CLoseSimple.csv";
-        //        break;
-        //    case (int)Method.CLOSE_DIST:
-        //        path += "_CLoseDist.csv";
-        //        break;
-        //    case (int)Method.CLOSE_ROD:
-        //        path += "_CLoseRod.csv";
-        //        break;
-        //    case (int)Method.FAR_RAYCAST:
-        //        path += "_FarRaycast.csv";
-        //        break;
-        //    case (int)Method.FAR_INDIRECT_RAY:
-        //        path += "_FarIndirectRay.csv";
-        //        break;
-        //    default:
-        //        break;
-
-        //}
-
 
         fs = new FileStream(path, FileMode.OpenOrCreate);
         if (fs.Length == 0)

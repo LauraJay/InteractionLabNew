@@ -13,6 +13,7 @@ public class TargetTest : MonoBehaviour
     public int task = 1;
     public int method = 3;
     public int testId = 3;
+    private int tempId = 5; // Id für jede Testperon anpassen
 
     public Material material;
 
@@ -51,7 +52,8 @@ public class TargetTest : MonoBehaviour
     public void setTestID(int id)
     {
         testId = id;
-        m.setTestID(testId);
+        // m.setTestID(testId);
+        m.setTestID(tempId);
 
     }
 
@@ -59,7 +61,8 @@ public class TargetTest : MonoBehaviour
     {
         m = new Measurements();
         m.initMeasurements();
-        m.setTestID(testId);
+        //m.setTestID(testId);
+        m.setTestID(tempId);
     }
 
 
