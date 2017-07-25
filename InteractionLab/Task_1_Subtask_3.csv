@@ -1,0 +1,10 @@
+ID,  time Touch Grab, time Proxmitiy, time Wand Grab, time Raycast, time Extend Ray , Sucessful Method
+<<<<<<< HEAD
+5,0,0,0,0,0,-1
+=======
+1,0,0,13633,0,0,2
+2,0,0,15927,0,0,2
+3,0,0,0,0,12744,4
+4,0,0,0,5339,0,3
+5,0,0,0,0,19636,4
+>>>>>>> f7760a13fb0ac728b58911a9a38c475aeee01c17
