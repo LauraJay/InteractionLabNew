@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerGrabLightlyDistance : MonoBehaviour {
+public class TouchGrab : MonoBehaviour
+{
 
     private SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
     private GameObject objectInHand;
-    private Color saveColor;
-    private GameObject resetColor;
 
     // testing for snapping
     public bool snapObject = false;
-    private bool LargeColider = false;
-    private bool canChangeColor = true;
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
+    private Color saveColor;
+    private GameObject resetColor;
+    private bool canChangeColor = true;
+
+    private SelfTeaching selfTeaching;
+
     private TargetTest t;
     public bool isLearningMode = false;
-    private SelfTeaching selfTeaching; 
 
     public void setObjectSnapping(bool snap)
     {
@@ -69,25 +71,28 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
     private void GrabObject()
     {
         selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
-        //if (Menu.teaching) selfTeaching.increaseCounter();
-        
+        if (Menu.teaching)
+        {
+            //selfTeaching.increaseCounter();
+            selfTeaching.showArea(true);
+        }
 
         objectInHand = collidingObject;
 
         if (!snapObject)
         {
-            if (Menu.teaching) selfTeaching.setCounter(16);
+            if (Menu.teaching) selfTeaching.setCounter(5);
             Debug.Log("no snapping " + snapObject);
             var joint = AddFixedJoint();
             joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
         }
 
-        else if (snapObject)
+        else if(snapObject)
         {
-            if (Menu.teaching) selfTeaching.setCounter(21);
+            if (Menu.teaching) selfTeaching.setCounter(10);
             Debug.Log("snapping " + snapObject);
-
-            var joint = createJoint(GameObject.Find("Controller (right)"));
+          
+           var joint = createJoint(GameObject.Find("Controller (right)"));
             SetSnappedObjectPosition(collidingObject);
             joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
         }
@@ -114,7 +119,6 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
                 }
             }
         }
-
     }
 
     private FixedJoint AddFixedJoint()
@@ -127,8 +131,14 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
 
     private void ReleaseObject()
     {
-        if (Menu.teaching) selfTeaching.increaseCounter();
-        if (GetComponent<FixedJoint>())
+        if (Menu.teaching)
+        {
+            selfTeaching.increaseCounter();
+            selfTeaching.showArea(false);
+            selfTeaching.showTarget(false);
+        }
+
+            if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
@@ -141,16 +151,8 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        //Collider vergrößern
-        if (!LargeColider) {
-            //string size = this.GetComponent<BoxCollider>().size.ToString();
-            //Debug.Log("Size Collider befor resizing: " + size);
-            this.GetComponent<BoxCollider>().size = new Vector3(0.1f, 0.01f, 0.125f);
-            this.GetComponent<BoxCollider>().transform.position = new Vector3(0f, -0.06f, 0.02f);
-            LargeColider = true;
-        }
 
-        if(collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
+        if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
         {
             Renderer rend = collidingObject.GetComponent<Renderer>();
             saveColor = rend.material.color;
@@ -158,15 +160,12 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
             canChangeColor = false;
             resetColor = collidingObject;
         }
-        else if (!canChangeColor && collidingObject==null)
+        else if (!canChangeColor && collidingObject == null)
         {
             Renderer rend = resetColor.GetComponent<Renderer>();
             rend.material.color = saveColor;
             canChangeColor = true;
         }
-
-
-
 
         if (Controller.GetHairTriggerDown())
         {
@@ -190,7 +189,7 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
         Debug.Log("create joint" + obj.transform.name);
         givenJoint = obj.AddComponent<FixedJoint>();
         givenJoint.breakForce = Mathf.Infinity;
-        return givenJoint;
+        return givenJoint; 
     }
 
 
@@ -201,6 +200,6 @@ public class ControllerGrabLightlyDistance : MonoBehaviour {
 
         obj.transform.rotation = controllerAttachPoint.transform.rotation; //* Quaternion.Euler(obj.transform.localEulerAngles);
         obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
-
+ 
     }
 }

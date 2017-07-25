@@ -2,36 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerGrabViaRod : MonoBehaviour
-{
-    public enum AxisType
-    {
-        XAxis,
-        ZAxis
-    }
-    public float thickness = 0.006f;
-    public AxisType facingAxis = AxisType.XAxis;
-    public float length = 0.15f;
-    public Color color = Color.yellow;
+public class ProximityGrab : MonoBehaviour {
 
-    public Vector3 position = new Vector3();
     private SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
     private GameObject objectInHand;
-    GameObject holder;
-    static GameObject pointer;
-    static Material newMaterial;
-    private static bool StartIsReady = false;
-    private bool canChangeColor = true;
     private Color saveColor;
     private GameObject resetColor;
-    private TargetTest t;
-    public bool isLearningMode = false;
 
-
+    // testing for snapping
+    public bool snapObject = false;
+    private bool LargeColider = false;
+    private bool canChangeColor = true;
     protected Rigidbody controllerAttachPoint;
     protected FixedJoint givenJoint;
 
+    private TargetTest t;
+    public bool isLearningMode = false;
+    private SelfTeaching selfTeaching; 
+
+    public void setObjectSnapping(bool snap)
+    {
+        snapObject = snap;
+    }
 
     private SteamVR_Controller.Device Controller
     {
@@ -43,46 +36,13 @@ public class ControllerGrabViaRod : MonoBehaviour
         trackedObj = GetComponent<SteamVR_TrackedObject>();
     }
 
-    private void OldStart()
-    {
-        if (Menu.RodIsEnabled)
-        {
-            this.GetComponent<BoxCollider>().enabled = true;
-            this.GetComponent<BoxCollider>().size = new Vector3(0.006f, 0.006f, 0.05f);
-            this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.125f);
-        }
-
-        newMaterial = new Material(Shader.Find("Unlit/TransparentColor"));
-        color = new Color(0, 0, 0, 255);
-        newMaterial.SetColor("_Color", color);
-
-        holder = new GameObject();
-        holder.transform.parent = this.transform;
-        holder.transform.localPosition = Vector3.zero;
-        holder.transform.localPosition = position; //new Vector3(0, -0.05f, 0.2f);
-        //holder.transform.localRotation = Quaternion.Euler(0f, 180.0f, 0f);
-
-        pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        pointer.transform.parent = holder.transform;
-        pointer.GetComponent<MeshRenderer>().material = newMaterial;
-
-        pointer.GetComponent<BoxCollider>().isTrigger = true;
-        pointer.AddComponent<Rigidbody>().isKinematic = false;
-        pointer.layer = 2;
-
-        SetPointerTransform(length, thickness);
-        StartIsReady = true;
-
-    }
-
     private void SetCollidingObject(Collider col)
     {
-        if (collidingObject || !col.GetComponent<Rigidbody>())// || !col.Equals(cursor.GetComponent<SphereCollider>()))
+        if (collidingObject || !col.GetComponent<Rigidbody>())
         {
             return;
         }
         collidingObject = col.gameObject;
-        Debug.Log("Colliding Object " + collidingObject.name);
     }
 
     public void OnTriggerEnter(Collider other)
@@ -108,11 +68,29 @@ public class ControllerGrabViaRod : MonoBehaviour
 
     private void GrabObject()
     {
+        selfTeaching = GameObject.Find("RightController").GetComponent<SelfTeaching>();
+        //if (Menu.teaching) selfTeaching.increaseCounter();
+        
 
         objectInHand = collidingObject;
 
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+        if (!snapObject)
+        {
+            if (Menu.teaching) selfTeaching.setCounter(16);
+            Debug.Log("no snapping " + snapObject);
+            var joint = AddFixedJoint();
+            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+        }
+
+        else if (snapObject)
+        {
+            if (Menu.teaching) selfTeaching.setCounter(21);
+            Debug.Log("snapping " + snapObject);
+
+            var joint = createJoint(GameObject.Find("Controller (right)"));
+            SetSnappedObjectPosition(collidingObject);
+            joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
+        }
         string name = objectInHand.name;
 
         if (!isLearningMode)
@@ -149,7 +127,7 @@ public class ControllerGrabViaRod : MonoBehaviour
 
     private void ReleaseObject()
     {
-
+        if (Menu.teaching) selfTeaching.increaseCounter();
         if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;
@@ -163,21 +141,16 @@ public class ControllerGrabViaRod : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if (!StartIsReady)
-        {
-            OldStart();
-           
-            //this.GetComponent<BoxCollider>().size = new Vector3(0.005f, 0.005f, 0.3f);
-            // this.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0.02f);
+        //Collider vergrößern
+        if (!LargeColider) {
+            //string size = this.GetComponent<BoxCollider>().size.ToString();
+            //Debug.Log("Size Collider befor resizing: " + size);
+            this.GetComponent<BoxCollider>().size = new Vector3(0.1f, 0.01f, 0.125f);
+            this.GetComponent<BoxCollider>().transform.position = new Vector3(0f, -0.06f, 0.02f);
+            LargeColider = true;
         }
 
-        if (!Menu.RodIsEnabled)
-        {
-            this.GetComponent<BoxCollider>().enabled = false;
-        }
-
-        if (collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
+        if(collidingObject && collidingObject.transform.tag == ("Moveable") && canChangeColor)
         {
             Renderer rend = collidingObject.GetComponent<Renderer>();
             saveColor = rend.material.color;
@@ -185,14 +158,16 @@ public class ControllerGrabViaRod : MonoBehaviour
             canChangeColor = false;
             resetColor = collidingObject;
         }
-        else if (!canChangeColor && !collidingObject)
+        else if (!canChangeColor && collidingObject==null)
         {
             Renderer rend = resetColor.GetComponent<Renderer>();
             rend.material.color = saveColor;
             canChangeColor = true;
         }
 
-        SetPointerTransform(length, thickness);
+
+
+
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObject && collidingObject.transform.tag == ("Moveable"))
@@ -228,26 +203,4 @@ public class ControllerGrabViaRod : MonoBehaviour
         obj.transform.position = controllerAttachPoint.transform.position - (obj.transform.position - obj.transform.position);
 
     }
-    void SetPointerTransform(float setLength, float setThicknes)
-    {
-        //if the additional decimal isn't added then the beam position glitches
-        float beamPosition = setLength / (2 + 0.00001f);
-
-        if (facingAxis == AxisType.XAxis)
-        {
-            pointer.transform.localScale = new Vector3(setLength, setThicknes, setThicknes);
-            pointer.transform.localPosition = new Vector3(beamPosition, 0f, 0f);
-        }
-        else
-        {
-            pointer.transform.localScale = new Vector3(setThicknes, setThicknes, setLength);
-            pointer.transform.localPosition = new Vector3(0f, 0f, beamPosition);
-        }
-    }
-
-    //public static void deleteBoxCollider()
-    //{
-    //    this.GetComponent<BoxCollider>().enabled = false;
-    //    StartIsReady = false;
-    //}
 }

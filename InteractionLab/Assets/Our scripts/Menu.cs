@@ -8,8 +8,8 @@ public class Menu : MonoBehaviour
 {
 
     //scripts for activating grabbing methods
-    private ControllerGrabObject scriptNearSimple;
-    private ControllerGrabLightlyDistance scriptNearDist;
+    private TouchGrab scriptNearSimple;
+    private ProximityGrab scriptNearDist;
     private AllRaycastMethods scriptAllRays;
 
     public static bool teaching = false;
@@ -136,9 +136,9 @@ public class Menu : MonoBehaviour
     //Get all interaction scripts
     void GetScripts()
     {
-        scriptNearSimple = GameObject.Find("Controller (right)").GetComponent<ControllerGrabObject>();
-        scriptNearDist = GameObject.Find("Controller (right)").GetComponent<ControllerGrabLightlyDistance>();
-        scriptAllRays = GameObject.Find("Controller (right)").GetComponent<AllRaycastMethods>();
+        scriptNearSimple = GameObject.Find("Controller (right)").GetComponent<TouchGrab>();
+        scriptNearDist   = GameObject.Find("Controller (right)").GetComponent<ProximityGrab>();
+        scriptAllRays    = GameObject.Find("Controller (right)").GetComponent<AllRaycastMethods>();
     }
 
     private void disableScripts()
